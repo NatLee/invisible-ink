@@ -1,3 +1,40 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+  --color-accent-from: #8b5cf6;
+  --color-accent-to: #4f46e5;
+}
+
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-violet-500 to-indigo-600;
+  }
+  .bg-pattern {
+    background-image: radial-gradient(
+      circle at 1px 1px,
+      rgb(0 0 0 / 0.04) 1px,
+      transparent 0
+    );
+    background-size: 24px 24px;
+  }
+}
+
+@keyframes checkmark {
+  0% {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  50% {
+    transform: scale(1.1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-checkmark {
+  animation: checkmark 0.3s ease;
+}
