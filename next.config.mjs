@@ -5,9 +5,9 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // GitHub Pages: https://natlee.github.io/zero-width-generator/
-  basePath: "/zero-width-generator",
-  assetPrefix: process.env.NODE_ENV === "production" ? "/zero-width-generator" : "",
+  // GitHub Pages: https://natlee.github.io/invisible-ink/
+  basePath: "/invisible-ink",
+  assetPrefix: process.env.NODE_ENV === "production" ? "/invisible-ink" : "",
 };
 
 export default nextConfig;
