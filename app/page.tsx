@@ -23,7 +23,7 @@ const DEFAULT_DENSITY = 50;
 
 export default function Home() {
   const [tool, setTool] = useState<ToolId>("zero-width");
-  const [source, setSource] = useState("https://natlee.github.io/zero-width-generator/");
+  const [source, setSource] = useState("https://natlee.github.io/invisible-inkr/");
   const [mode, setMode] = useState<InjectionMode>(DEFAULT_MODE);
   const [charType, setCharType] = useState<CharType>(DEFAULT_CHAR);
   const [density, setDensity] = useState(DEFAULT_DENSITY);
@@ -84,7 +84,7 @@ export default function Home() {
           Invisible Ink
         </h1>
         <a
-          href="https://github.com/NatLee/zero-width-generator"
+          href="https://github.com/NatLee/invisible-inkr"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-1.5 text-slate-500 hover:text-violet-600 transition-colors rounded-md p-1.5 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2"

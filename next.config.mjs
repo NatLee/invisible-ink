@@ -4,11 +4,11 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // GitHub Pages: https://natlee.github.io/zero-width-generator/
-  basePath: "/zero-width-generator",
+  // GitHub Pages: https://natlee.github.io/invisible-inkr/
+  basePath: "/invisible-inkr",
   // Use full URL so assets load correctly when served at repo subpath
   assetPrefix: process.env.NODE_ENV === "production"
-    ? "https://natlee.github.io/zero-width-generator"
+    ? "https://natlee.github.io/invisible-inkr"
     : undefined,
 };
 

@@ -63,7 +63,7 @@ Static files are written to the `out/` directory (Next.js `output: 'export'`).
 2. In the repo: **Settings → Pages → Build and deployment**: choose **GitHub Actions**.
 3. Push to `main`; the workflow in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) will build and deploy.
 
-The app is configured for **https://natlee.github.io/zero-width-generator/** via `basePath` and `assetPrefix` in [`next.config.mjs`](next.config.mjs). If you use a different repo or user, update those values.
+The app is configured for **https://natlee.github.io/invisible-inkr/** via `basePath` and `assetPrefix` in [`next.config.mjs`](next.config.mjs). If you use a different repo or user, update those values.
 
 ## Project Structure
 
