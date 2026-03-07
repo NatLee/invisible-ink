@@ -51,7 +51,7 @@ export default function Home() {
           Zero-Width Injector
         </h1>
         <a
-          href="https://github.com"
+          href="https://github.com/NatLee/zero-width-generator"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center gap-1 text-slate-600 hover:text-slate-900"

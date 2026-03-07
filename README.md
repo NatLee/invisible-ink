@@ -1,5 +1,7 @@
 # Zero-Width Injector (隱形字元注入器)
 
+**Repository:** [https://github.com/NatLee/zero-width-generator](https://github.com/NatLee/zero-width-generator)
+
 A web tool that injects invisible Unicode characters (zero-width spaces and joiners) into your text. The result **looks the same** on screen but has a **different digital encoding**—useful for teaching, testing how systems handle hidden characters, or making simple copy-paste by bots less reliable.
 
 ## What It Does
@@ -61,14 +63,7 @@ Static files are written to the `out/` directory (Next.js `output: 'export'`).
 2. In the repo: **Settings → Pages → Build and deployment**: choose **GitHub Actions**.
 3. Push to `main`; the workflow in [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) will build and deploy.
 
-If the site is served at `https://<user>.github.io/<repo-name>/` (not the root), set the path in [`next.config.mjs`](next.config.mjs):
-
-```js
-basePath: '/your-repo-name',
-assetPrefix: '/your-repo-name/',
-```
-
-Then rebuild and redeploy.
+The app is configured for **https://natlee.github.io/zero-width-generator/** via `basePath` and `assetPrefix` in [`next.config.mjs`](next.config.mjs). If you use a different repo or user, update those values.
 
 ## Project Structure
 
