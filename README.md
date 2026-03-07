@@ -1,6 +1,6 @@
 # Invisible Ink (隱形字元注入器)
 
-**Repository:** [https://github.com/NatLee/zero-width-generator](https://github.com/NatLee/zero-width-generator)
+**Repository:** [https://github.com/NatLee/invisible-ink](https://github.com/NatLee/invisible-ink)
 
 Invisible Ink is a web tool that injects invisible Unicode characters (zero-width spaces and joiners) into your text. The result **looks the same** on screen but has a **different digital encoding**—useful for teaching, testing how systems handle hidden characters, or making simple copy-paste by bots less reliable.
 
