@@ -63,7 +63,7 @@ jobs:
         run: ${{ steps.detect-package-manager.outputs.runner }} next build
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@3
+        uses: actions/upload-pages-artifact@v3
         with:
           path: ./out
 
@@ -76,4 +76,4 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@4
+        uses: actions/deploy-pages@v4
