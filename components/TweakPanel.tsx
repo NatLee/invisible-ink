@@ -2,6 +2,23 @@
 
 import type { InjectionMode, CharType } from "@/lib/injector";
 
+const CHAR_TYPE_CODES = ["200B", "200C", "200D", "mix"] as const;
+type CharTypeCode = (typeof CHAR_TYPE_CODES)[number];
+
+function charTypeToCode(c: CharType): CharTypeCode {
+  if (c === "\u200B") return "200B";
+  if (c === "\u200C") return "200C";
+  if (c === "\u200D") return "200D";
+  return "mix";
+}
+
+function codeToCharType(code: CharTypeCode): CharType {
+  if (code === "200B") return "\u200B";
+  if (code === "200C") return "\u200C";
+  if (code === "200D") return "\u200D";
+  return "mix";
+}
+
 const MODE_OPTIONS: { value: InjectionMode; label: string }[] = [
   { value: "interval", label: "Full Interval" },
   { value: "random", label: "Random" },
@@ -9,10 +26,10 @@ const MODE_OPTIONS: { value: InjectionMode; label: string }[] = [
   { value: "url-breaker", label: "URL Breaker" },
 ];
 
-const CHAR_OPTIONS: { value: CharType; label: string }[] = [
-  { value: "\u200B", label: "Zero Width Space (U+200B)" },
-  { value: "\u200C", label: "Zero Width Non-Joiner (U+200C)" },
-  { value: "\u200D", label: "Zero Width Joiner (U+200D)" },
+const CHAR_OPTIONS: { value: CharTypeCode; label: string }[] = [
+  { value: "200B", label: "Zero Width Space (U+200B)" },
+  { value: "200C", label: "Zero Width Non-Joiner (U+200C)" },
+  { value: "200D", label: "Zero Width Joiner (U+200D)" },
   { value: "mix", label: "Mix" },
 ];
 
@@ -47,7 +64,7 @@ export default function TweakPanel({
           id="injection-mode"
           value={mode}
           onChange={(e) => onModeChange(e.target.value as InjectionMode)}
-          className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-400"
+          className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-300"
           aria-describedby={showDensity ? "density-desc" : undefined}
         >
           {MODE_OPTIONS.map((o) => (
@@ -64,9 +81,9 @@ export default function TweakPanel({
         </label>
         <select
           id="char-type"
-          value={charType}
-          onChange={(e) => onCharTypeChange(e.target.value as CharType)}
-          className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-400"
+          value={charTypeToCode(charType)}
+          onChange={(e) => onCharTypeChange(codeToCharType(e.target.value as CharTypeCode))}
+          className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-300"
         >
           {CHAR_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
@@ -88,7 +105,7 @@ export default function TweakPanel({
             max={100}
             value={density}
             onChange={(e) => onDensityChange(Number(e.target.value))}
-            className="w-full h-2 rounded-lg appearance-none bg-slate-200 accent-slate-600"
+            className="w-full h-2 rounded-lg appearance-none bg-slate-200 accent-indigo-600"
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={density}

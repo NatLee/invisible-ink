@@ -73,18 +73,30 @@ const ZWSP = "\u200B";
 const ZWNJ = "\u200C";
 const ZWJ = "\u200D";
 
+/** Placeholders for block style when distinguishing Mix (U+200B, U+200C, U+200D). */
+export const BLOCK_ZWSP = "\u25A0";
+export const BLOCK_ZWNJ = "\u25A1";
+export const BLOCK_ZWJ = "\u25AA";
+
 /**
  * Renders invisible characters visibly for inspector/debug mode.
  * - tag: replace with <200B>, <200C>, <200D>
- * - block: replace with a visible block character (e.g. ▯)
+ * - block: replace with a visible block; if distinguishMix, use ■ □ ▪ for the three types.
  */
 export function renderInvisibleForInspector(
   text: string,
   enabled: boolean,
-  style: InspectorStyle = "tag"
+  style: InspectorStyle = "tag",
+  distinguishMix: boolean = false
 ): string {
   if (!enabled) return text;
   if (style === "block") {
+    if (distinguishMix) {
+      return text
+        .replace(new RegExp(ZWSP, "g"), BLOCK_ZWSP)
+        .replace(new RegExp(ZWNJ, "g"), BLOCK_ZWNJ)
+        .replace(new RegExp(ZWJ, "g"), BLOCK_ZWJ);
+    }
     return text
       .replace(new RegExp(ZWSP, "g"), "▯")
       .replace(new RegExp(ZWNJ, "g"), "▯")

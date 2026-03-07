@@ -33,7 +33,7 @@ export default function CopyButton({
       disabled={disabled || !text}
       aria-label={ariaLabel}
       aria-live="polite"
-      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-700 text-white hover:bg-slate-600 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-500 disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-colors"
     >
       {copied ? (
         <>

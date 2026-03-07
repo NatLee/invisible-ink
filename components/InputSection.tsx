@@ -28,7 +28,7 @@ export default function InputSection({
           if (v.length <= MAX_LENGTH) onChange(v);
         }}
         disabled={disabled}
-        className="w-full min-h-[120px] px-3 py-2 rounded-lg border border-slate-300 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:border-transparent disabled:opacity-60"
+        className="w-full min-h-[160px] md:min-h-[200px] resize-y px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-300 disabled:opacity-60 transition-shadow"
         rows={5}
       />
       <p id="input-count" className="mt-1 text-sm text-slate-500">
