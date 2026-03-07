@@ -7,7 +7,19 @@ const config: Config = {
     "./app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "monospace"],
+      },
+      boxShadow: {
+        card: "0 10px 40px -10px rgba(0, 0, 0, 0.1)",
+        "card-hover": "0 14px 50px -12px rgba(0, 0, 0, 0.15)",
+      },
+      backgroundImage: {
+        "gradient-accent": "linear-gradient(to right, var(--tw-gradient-stops))",
+      },
+    },
   },
   plugins: [],
 };
