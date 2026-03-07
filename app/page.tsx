@@ -1,22 +1,28 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Github } from "lucide-react";
 import InputSection from "@/components/InputSection";
 import TweakPanel from "@/components/TweakPanel";
 import ResultSection from "@/components/ResultSection";
+import ToolSelector, { type ToolId } from "@/components/ToolSelector";
+import ShuffleOptions from "@/components/ShuffleOptions";
+import HomoglyphOptions from "@/components/HomoglyphOptions";
 import {
   injectZeroWidth,
   type InjectionMode,
   type CharType,
   type InspectorStyle,
 } from "@/lib/injector";
+import { shuffleFragments, type ShuffleStrategy } from "@/lib/shuffle";
+import { applyHomoglyph, type HomoglyphStrength } from "@/lib/homoglyph";
 
 const DEFAULT_MODE: InjectionMode = "interval";
 const DEFAULT_CHAR: CharType = "\u200B";
 const DEFAULT_DENSITY = 50;
 
 export default function Home() {
+  const [tool, setTool] = useState<ToolId>("zero-width");
   const [source, setSource] = useState("https://natlee.github.io/zero-width-generator/");
   const [mode, setMode] = useState<InjectionMode>(DEFAULT_MODE);
   const [charType, setCharType] = useState<CharType>(DEFAULT_CHAR);
@@ -24,10 +30,33 @@ export default function Home() {
   const [inspectorEnabled, setInspectorEnabled] = useState(false);
   const [inspectorStyle, setInspectorStyle] = useState<InspectorStyle>("tag");
 
-  const result = useMemo(
+  const [shuffleStrategy, setShuffleStrategy] = useState<ShuffleStrategy>("word");
+  const [charBlockSize, setCharBlockSize] = useState(3);
+  const [homoglyphStrength, setHomoglyphStrength] = useState<HomoglyphStrength>("medium");
+
+  const zeroWidthResult = useMemo(
     () => injectZeroWidth(source, mode, charType, density),
     [source, mode, charType, density]
   );
+
+  const [shuffleResult, setShuffleResult] = useState("");
+  const [homoglyphResult, setHomoglyphResult] = useState("");
+  useEffect(() => {
+    if (!source.trim()) {
+      setShuffleResult("");
+      setHomoglyphResult("");
+      return;
+    }
+    setShuffleResult(shuffleFragments(source, shuffleStrategy, charBlockSize));
+    setHomoglyphResult(applyHomoglyph(source, homoglyphStrength));
+  }, [source, shuffleStrategy, charBlockSize, homoglyphStrength]);
+
+  const result =
+    tool === "zero-width"
+      ? zeroWidthResult
+      : tool === "shuffle"
+        ? shuffleResult
+        : homoglyphResult;
 
   const handleReset = () => {
     setSource("");
@@ -36,11 +65,15 @@ export default function Home() {
     setDensity(DEFAULT_DENSITY);
     setInspectorEnabled(false);
     setInspectorStyle("tag");
+    setShuffleStrategy("word");
+    setCharBlockSize(3);
+    setHomoglyphStrength("medium");
+    setShuffleResult("");
+    setHomoglyphResult("");
   };
 
   const originalLength = source.length;
   const resultLength = result.length;
-
   const originalEncoded = source ? encodeURIComponent(source) : "";
   const resultEncoded = result ? encodeURIComponent(result) : "";
 
@@ -62,6 +95,20 @@ export default function Home() {
       </header>
 
       <main className="flex-1 container max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-6 space-y-5">
+        <div
+          role="tabpanel"
+          id="panel-toolbox"
+          aria-labelledby="tab-toolbox"
+          className="space-y-4"
+        >
+          <div>
+            <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block mb-2">
+              工具箱
+            </span>
+            <ToolSelector value={tool} onChange={setTool} />
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 min-h-0">
           <div className="min-h-0 rounded-xl bg-white/90 backdrop-blur-md border border-white/20 shadow-card p-4 border-l-4 border-violet-500">
             <InputSection value={source} onChange={setSource} />
@@ -75,6 +122,7 @@ export default function Home() {
               onInspectorToggle={() => setInspectorEnabled((v) => !v)}
               onInspectorStyleChange={setInspectorStyle}
               onReset={handleReset}
+              showInspector={tool === "zero-width"}
             />
           </div>
         </div>
@@ -82,16 +130,32 @@ export default function Home() {
         <div
           className="rounded-xl bg-slate-800/90 text-slate-100 px-4 py-3 border border-slate-700/50"
           role="region"
-          aria-label="注入設定"
+          aria-label={tool === "zero-width" ? "注入設定" : tool === "shuffle" ? "打亂設定" : "同形字設定"}
         >
-          <TweakPanel
-            mode={mode}
-            charType={charType}
-            density={density}
-            onModeChange={setMode}
-            onCharTypeChange={setCharType}
-            onDensityChange={setDensity}
-          />
+          {tool === "zero-width" && (
+            <TweakPanel
+              mode={mode}
+              charType={charType}
+              density={density}
+              onModeChange={setMode}
+              onCharTypeChange={setCharType}
+              onDensityChange={setDensity}
+            />
+          )}
+          {tool === "shuffle" && (
+            <ShuffleOptions
+              strategy={shuffleStrategy}
+              charBlockSize={charBlockSize}
+              onStrategyChange={setShuffleStrategy}
+              onCharBlockSizeChange={setCharBlockSize}
+            />
+          )}
+          {tool === "homoglyph" && (
+            <HomoglyphOptions
+              strength={homoglyphStrength}
+              onStrengthChange={setHomoglyphStrength}
+            />
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">

@@ -18,6 +18,7 @@ export default function ResultSection({
   onInspectorToggle,
   onInspectorStyleChange,
   onReset,
+  showInspector = true,
 }: {
   result: string;
   charType: CharType;
@@ -26,15 +27,18 @@ export default function ResultSection({
   onInspectorToggle: () => void;
   onInspectorStyleChange: (style: InspectorStyle) => void;
   onReset: () => void;
+  showInspector?: boolean;
 }) {
-  const displayText = renderInvisibleForInspector(
+  const displayText = showInspector
+    ? renderInvisibleForInspector(
     result,
     inspectorEnabled,
     inspectorStyle,
     charType === "mix"
-  );
+  )
+    : result;
 
-  const isBlockStyle = inspectorEnabled && inspectorStyle === "block";
+  const isBlockStyle = showInspector && inspectorEnabled && inspectorStyle === "block";
   const distinguishMix = isBlockStyle && charType === "mix";
 
   const renderBlockContent = () => {
@@ -109,38 +113,40 @@ export default function ResultSection({
           rows={5}
         />
       )}
-      <div className="mt-3 flex flex-wrap items-center gap-3">
-        <label className="inline-flex items-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            id="inspector-toggle"
-            checked={inspectorEnabled}
-            onChange={onInspectorToggle}
-            className="rounded border-slate-300 text-violet-600 focus:ring-violet-500"
-            aria-describedby="inspector-desc"
-          />
-          <span id="inspector-desc" className="text-sm text-slate-600">
-            Debug
-          </span>
-        </label>
-        {inspectorEnabled && (
-          <div className="flex items-center gap-2">
-            <label htmlFor="inspector-style" className="text-sm text-slate-500">
-              顯示為
-            </label>
-            <select
-              id="inspector-style"
-              value={inspectorStyle}
-              onChange={(e) => onInspectorStyleChange(e.target.value as InspectorStyle)}
-              className="text-sm rounded-lg border border-slate-200 bg-white px-2 py-1 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-colors"
-              aria-label="透視顯示樣式"
-            >
-              <option value="tag">編碼標記</option>
-              <option value="block">方塊</option>
-            </select>
-          </div>
-        )}
-      </div>
+      {showInspector && (
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <label className="inline-flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              id="inspector-toggle"
+              checked={inspectorEnabled}
+              onChange={onInspectorToggle}
+              className="rounded border-slate-300 text-violet-600 focus:ring-violet-500"
+              aria-describedby="inspector-desc"
+            />
+            <span id="inspector-desc" className="text-sm text-slate-600">
+              Debug
+            </span>
+          </label>
+          {inspectorEnabled && (
+            <div className="flex items-center gap-2">
+              <label htmlFor="inspector-style" className="text-sm text-slate-500">
+                顯示為
+              </label>
+              <select
+                id="inspector-style"
+                value={inspectorStyle}
+                onChange={(e) => onInspectorStyleChange(e.target.value as InspectorStyle)}
+                className="text-sm rounded-lg border border-slate-200 bg-white px-2 py-1 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-colors"
+                aria-label="透視顯示樣式"
+              >
+                <option value="tag">編碼標記</option>
+                <option value="block">方塊</option>
+              </select>
+            </div>
+          )}
+        </div>
+      )}
     </section>
   );
 }
