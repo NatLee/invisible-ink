@@ -33,6 +33,9 @@ const CHAR_OPTIONS: { value: CharTypeCode; label: string }[] = [
   { value: "mix", label: "Mix" },
 ];
 
+const stripInput =
+  "px-3 py-2 rounded-lg border border-slate-600 bg-slate-700/80 text-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400 transition-all duration-200";
+
 export default function TweakPanel({
   mode,
   charType,
@@ -51,20 +54,23 @@ export default function TweakPanel({
   const showDensity = mode === "random";
 
   return (
-    <section aria-labelledby="tweak-label" className="space-y-4">
-      <h2 id="tweak-label" className="text-sm font-medium text-slate-700">
+    <section
+      aria-labelledby="tweak-label"
+      className="flex flex-wrap items-end gap-4"
+    >
+      <h2 id="tweak-label" className="sr-only">
         設定區 (Tweaks)
       </h2>
 
-      <div>
-        <label htmlFor="injection-mode" className="block text-sm text-slate-600 mb-1">
-          注入模式
+      <div className="flex flex-col gap-1">
+        <label htmlFor="injection-mode" className="text-xs font-medium text-slate-300">
+          模式
         </label>
         <select
           id="injection-mode"
           value={mode}
           onChange={(e) => onModeChange(e.target.value as InjectionMode)}
-          className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-300"
+          className={`min-w-[140px] ${stripInput}`}
           aria-describedby={showDensity ? "density-desc" : undefined}
         >
           {MODE_OPTIONS.map((o) => (
@@ -75,15 +81,15 @@ export default function TweakPanel({
         </select>
       </div>
 
-      <div>
-        <label htmlFor="char-type" className="block text-sm text-slate-600 mb-1">
-          隱形字元類型
+      <div className="flex flex-col gap-1">
+        <label htmlFor="char-type" className="text-xs font-medium text-slate-300">
+          字元類型
         </label>
         <select
           id="char-type"
           value={charTypeToCode(charType)}
           onChange={(e) => onCharTypeChange(codeToCharType(e.target.value as CharTypeCode))}
-          className="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-300"
+          className={`min-w-[180px] ${stripInput}`}
         >
           {CHAR_OPTIONS.map((o) => (
             <option key={o.value} value={o.value}>
@@ -94,8 +100,8 @@ export default function TweakPanel({
       </div>
 
       {showDensity && (
-        <div id="density-desc">
-          <label htmlFor="density" className="block text-sm text-slate-600 mb-1">
+        <div id="density-desc" className="flex flex-col gap-1 flex-1 min-w-[160px] max-w-[240px]">
+          <label htmlFor="density" className="text-xs font-medium text-slate-300">
             密度: {density}%
           </label>
           <input
@@ -105,7 +111,7 @@ export default function TweakPanel({
             max={100}
             value={density}
             onChange={(e) => onDensityChange(Number(e.target.value))}
-            className="w-full h-2 rounded-lg appearance-none bg-slate-200 accent-indigo-600"
+            className="w-full h-2 rounded-lg appearance-none bg-slate-600 accent-violet-400"
             aria-valuemin={0}
             aria-valuemax={100}
             aria-valuenow={density}

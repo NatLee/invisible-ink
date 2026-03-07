@@ -76,16 +76,16 @@ export default function ResultSection({
 
   return (
     <section aria-labelledby="result-label">
-      <div className="flex items-center justify-between gap-2 mb-1">
-        <label id="result-label" className="text-sm font-medium text-slate-700">
-          輸出區 (Result)
+      <div className="flex items-center justify-between gap-2 mb-2">
+        <label id="result-label" className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+          Result
         </label>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <CopyButton text={result} disabled={!result} />
           <button
             type="button"
             onClick={onReset}
-            className="px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-0 focus:border-indigo-300"
+            className="px-4 py-2 rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:border-violet-300 transition-all duration-200"
             aria-label="重置"
           >
             重置
@@ -94,7 +94,8 @@ export default function ResultSection({
       </div>
       {isBlockStyle ? (
         <div
-          className="w-full min-h-[160px] md:min-h-[200px] px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/80 text-slate-900 font-mono text-sm whitespace-pre-wrap break-words"
+          role="region"
+          className="w-full min-h-[160px] lg:min-h-[220px] rounded-lg border border-slate-200 bg-slate-50/80 px-3 py-2 font-mono text-sm text-slate-900 whitespace-pre-wrap break-words"
           aria-label={distinguishMix ? "處理後的結果（隱形字元以三色方塊顯示）" : "處理後的結果（隱形字元以紅色方塊顯示）"}
         >
           {renderBlockContent()}
@@ -104,38 +105,38 @@ export default function ResultSection({
           readOnly
           value={displayText}
           aria-label="處理後的結果"
-          className="w-full min-h-[160px] md:min-h-[200px] resize-none px-3 py-2 rounded-lg border border-slate-200 bg-slate-50/80 text-slate-900 font-mono text-sm"
+          className="w-full min-h-[160px] lg:min-h-[220px] resize-none rounded-lg border border-slate-200 bg-slate-50/80 px-3 py-2 font-mono text-sm text-slate-900"
           rows={5}
         />
       )}
-      <div className="mt-2 flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2">
+      <div className="mt-3 flex flex-wrap items-center gap-3">
+        <label className="inline-flex items-center gap-2 cursor-pointer">
           <input
             type="checkbox"
             id="inspector-toggle"
             checked={inspectorEnabled}
             onChange={onInspectorToggle}
-            className="rounded border-slate-200 text-indigo-600 focus:ring-indigo-500"
+            className="rounded border-slate-300 text-violet-600 focus:ring-violet-500"
             aria-describedby="inspector-desc"
           />
-          <label htmlFor="inspector-toggle" id="inspector-desc" className="text-sm text-slate-600">
-            顯示隱形字元 (Debug 模式)
-          </label>
-        </div>
+          <span id="inspector-desc" className="text-sm text-slate-600">
+            Debug
+          </span>
+        </label>
         {inspectorEnabled && (
           <div className="flex items-center gap-2">
-            <label htmlFor="inspector-style" className="text-sm text-slate-600">
+            <label htmlFor="inspector-style" className="text-sm text-slate-500">
               顯示為
             </label>
             <select
               id="inspector-style"
               value={inspectorStyle}
               onChange={(e) => onInspectorStyleChange(e.target.value as InspectorStyle)}
-              className="text-sm rounded border border-slate-200 bg-white px-2 py-1 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="text-sm rounded-lg border border-slate-200 bg-white px-2 py-1 focus:outline-none focus:ring-2 focus:ring-violet-500 transition-colors"
               aria-label="透視顯示樣式"
             >
-              <option value="tag">編碼標記 (&lt;200B&gt;)</option>
-              <option value="block">紅色方塊</option>
+              <option value="tag">編碼標記</option>
+              <option value="block">方塊</option>
             </select>
           </div>
         )}
