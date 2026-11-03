@@ -170,4 +170,4 @@ If you fork it under another name, change `basePath` in `next.config.mjs` to `/<
 
 ## License
 
-MIT
+[MIT](LICENSE) © 2026 Nat Lee
