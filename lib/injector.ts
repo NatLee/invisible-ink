@@ -24,6 +24,9 @@ export type CharType = InvisibleChar | "mix";
 /** The default character: the first one, U+200B zero width space. */
 export const DEFAULT_CHAR_TYPE: CharType = INVISIBLE_CHARS[0].char;
 
+/** Default chance (in %) that Random mode fills a gap. */
+export const DEFAULT_DENSITY = 50;
+
 /** Hex code point as shown in the UI, e.g. "200B" for U+200B. */
 export function codePointHex(char: string): string {
   return char.codePointAt(0)!.toString(16).toUpperCase().padStart(4, "0");
@@ -65,7 +68,7 @@ export function injectZeroWidth(
   text: string,
   mode: InjectionMode,
   charType: CharType = DEFAULT_CHAR_TYPE,
-  density: number = 50,
+  density: number = DEFAULT_DENSITY,
   random: RandomSource = Math.random
 ): string {
   if (!text) return text;

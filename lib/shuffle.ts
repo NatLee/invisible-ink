@@ -7,6 +7,9 @@ import { splitGraphemes, type RandomSource } from "./text";
 
 export type ShuffleStrategy = "word" | "sentence" | "char-block";
 
+/** Default block size for the char-block strategy. */
+export const DEFAULT_BLOCK_SIZE = 3;
+
 /** A piece of the text, and whether the shuffle may move it. */
 type Token = { text: string; movable: boolean };
 
@@ -85,7 +88,7 @@ function shuffleTokens(tokens: Token[], random: RandomSource): string {
 export function shuffleFragments(
   text: string,
   strategy: ShuffleStrategy,
-  charBlockSize: number = 3,
+  charBlockSize: number = DEFAULT_BLOCK_SIZE,
   random: RandomSource = Math.random
 ): string {
   if (!text.trim()) return text;
