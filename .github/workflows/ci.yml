@@ -1,7 +1,8 @@
 name: CI
 
-# Every PR and push: lint, type-check, test and build.
-# Pushes to main (or a manual run on main) then deploy the static export to GitHub Pages.
+# Every PR and push: lint, type-check, test, build, and upload the static export
+# (kept for a day, handy for checking a PR build). Only pushes to main, or a manual
+# run on main, go on to deploy it to GitHub Pages; that rule lives in the deploy job.
 on:
   push:
     branches: [main]
@@ -30,7 +31,6 @@ jobs:
       - run: npm run build
 
       - name: Upload the site for GitHub Pages
-        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5
         with:
           path: ./out
