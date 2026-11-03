@@ -1,15 +1,13 @@
 "use client";
 
 import type { HomoglyphStrength } from "@/lib/homoglyph";
+import { stripInput } from "./styles";
 
 const STRENGTHS: { value: HomoglyphStrength; label: string }[] = [
   { value: "minimal", label: "最小 (a,e,o)" },
   { value: "medium", label: "中等" },
   { value: "full", label: "完整" },
 ];
-
-const stripInput =
-  "px-3 py-2 rounded-lg border border-slate-600 bg-slate-700/80 text-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400 transition-all duration-200";
 
 export default function HomoglyphOptions({
   strength,

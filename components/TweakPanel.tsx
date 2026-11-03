@@ -1,6 +1,7 @@
 "use client";
 
 import type { InjectionMode, CharType } from "@/lib/injector";
+import { stripInput } from "./styles";
 
 const CHAR_TYPE_CODES = ["200B", "200C", "200D", "mix"] as const;
 type CharTypeCode = (typeof CHAR_TYPE_CODES)[number];
@@ -32,9 +33,6 @@ const CHAR_OPTIONS: { value: CharTypeCode; label: string }[] = [
   { value: "200D", label: "Zero Width Joiner (U+200D)" },
   { value: "mix", label: "Mix" },
 ];
-
-const stripInput =
-  "px-3 py-2 rounded-lg border border-slate-600 bg-slate-700/80 text-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400 transition-all duration-200";
 
 export default function TweakPanel({
   mode,

@@ -40,17 +40,17 @@ export default function Home() {
     [source, mode, charType, density]
   );
 
+  // Shuffle and homoglyph are random, so they run after mount rather than in
+  // the static prerender (the HTML and the first client render must match).
+  // Separate effects, so changing one tool's options doesn't re-roll the other.
   const [shuffleResult, setShuffleResult] = useState("");
   const [homoglyphResult, setHomoglyphResult] = useState("");
   useEffect(() => {
-    if (!source.trim()) {
-      setShuffleResult("");
-      setHomoglyphResult("");
-      return;
-    }
-    setShuffleResult(shuffleFragments(source, shuffleStrategy, charBlockSize));
-    setHomoglyphResult(applyHomoglyph(source, homoglyphStrength));
-  }, [source, shuffleStrategy, charBlockSize, homoglyphStrength]);
+    setShuffleResult(source.trim() ? shuffleFragments(source, shuffleStrategy, charBlockSize) : "");
+  }, [source, shuffleStrategy, charBlockSize]);
+  useEffect(() => {
+    setHomoglyphResult(source.trim() ? applyHomoglyph(source, homoglyphStrength) : "");
+  }, [source, homoglyphStrength]);
 
   const result =
     tool === "zero-width"
@@ -69,8 +69,6 @@ export default function Home() {
     setShuffleStrategy("word");
     setCharBlockSize(3);
     setHomoglyphStrength("medium");
-    setShuffleResult("");
-    setHomoglyphResult("");
   };
 
   const originalLength = source.length;
