@@ -35,7 +35,7 @@ function substitutes(strength: HomoglyphStrength): Record<string, string[]> {
     const seen = new Set<string>();
     for (let i = 0; i < 100; i++) seen.add(applyHomoglyph(letter, strength));
     seen.delete(letter);
-    if (seen.size) out[letter] = Array.from(seen).sort();
+    if (seen.size) out[letter] = [...seen].sort();
   }
   return out;
 }

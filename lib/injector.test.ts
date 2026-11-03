@@ -160,8 +160,7 @@ describe("splitInvisible (inspector block view)", () => {
 
 describe("INVISIBLE_CHARS table", () => {
   it("only holds invisible formatting characters (Unicode category Cf)", () => {
-    const formatChar = new RegExp(String.raw`^\p{Cf}$`, "u");
-    for (const { char } of INVISIBLE_CHARS) expect(char).toMatch(formatChar);
+    for (const { char } of INVISIBLE_CHARS) expect(char).toMatch(/^\p{Cf}$/u);
   });
 
   it("gives every character a tag and a block, derived from its code point", () => {
