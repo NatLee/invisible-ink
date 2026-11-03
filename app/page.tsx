@@ -16,6 +16,7 @@ import {
 } from "@/lib/injector";
 import { shuffleFragments, type ShuffleStrategy } from "@/lib/shuffle";
 import { applyHomoglyph, type HomoglyphStrength } from "@/lib/homoglyph";
+import { encodeForDisplay } from "@/lib/text";
 
 const DEFAULT_MODE: InjectionMode = "interval";
 const DEFAULT_CHAR: CharType = "\u200B";
@@ -74,8 +75,8 @@ export default function Home() {
 
   const originalLength = source.length;
   const resultLength = result.length;
-  const originalEncoded = source ? encodeURIComponent(source) : "";
-  const resultEncoded = result ? encodeURIComponent(result) : "";
+  const originalEncoded = source ? encodeForDisplay(source) : "";
+  const resultEncoded = result ? encodeForDisplay(result) : "";
 
   return (
     <div className="min-h-screen flex flex-col">

@@ -78,3 +78,61 @@ describe("renderInvisibleForInspector", () => {
     );
   });
 });
+
+/** Small seeded random source (mulberry32) so random modes are repeatable in tests. */
+function seeded(seed: number) {
+  return () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Each of these is one character on screen but more than one UTF-16 unit.
+const WHOLE = {
+  emoji: "\u{1F600}",
+  skinTone: "\u{1F44D}\u{1F3FD}",
+  flag: "\u{1F1F9}\u{1F1FC}",
+  zwjFamily: "\u{1F468}\u200D\u{1F469}\u200D\u{1F467}",
+  combiningAccent: "e\u0301",
+  thaiWithMarks: "\u0E17\u0E35\u0E48",
+};
+
+describe("injectZeroWidth keeps emoji and accented letters whole", () => {
+  it("never cuts a character in half in Full Interval mode", () => {
+    for (const g of Object.values(WHOLE))
+      expect(injectZeroWidth(`a${g}b`, "interval")).toBe(`a${ZWSP}${g}${ZWSP}b`);
+  });
+
+  it("gives text that can still be URI-encoded (this used to crash the page)", () => {
+    const text = `hi ${Object.values(WHOLE).join(" ")}`;
+    for (const mode of MODES)
+      for (const charType of CHAR_TYPES)
+        expect(() => encodeURIComponent(injectZeroWidth(text, mode, charType, 100))).not.toThrow();
+  });
+});
+
+describe("injectZeroWidth Random mode", () => {
+  it("is the same as Full Interval at 100% density", () => {
+    for (const text of ["abc", "hello world", `x${WHOLE.flag}y`])
+      expect(injectZeroWidth(text, "random", ZWSP, 100)).toBe(injectZeroWidth(text, "interval", ZWSP));
+  });
+
+  it("never adds a character after the last one", () => {
+    for (let i = 0; i < 50; i++) expect(injectZeroWidth("abc", "random", "mix", 100)).not.toMatch(/[\u200B-\u200D]$/);
+  });
+
+  it("fills about density% of the gaps", () => {
+    const out = injectZeroWidth("a".repeat(2001), "random", ZWSP, 30, seeded(1));
+    const inserted = out.length - 2001;
+    expect(inserted).toBeGreaterThan(500);
+    expect(inserted).toBeLessThan(700);
+  });
+
+  it("is repeatable with the same random source", () => {
+    const a = injectZeroWidth("hello world", "random", "mix", 50, seeded(42));
+    const b = injectZeroWidth("hello world", "random", "mix", 50, seeded(42));
+    expect(a).toBe(b);
+  });
+});

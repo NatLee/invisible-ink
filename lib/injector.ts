@@ -1,3 +1,5 @@
+import { splitGraphemes } from "./text";
+
 export type InjectionMode =
   | "interval"
   | "random"
@@ -8,63 +10,67 @@ export type InvisibleChar = "\u200B" | "\u200C" | "\u200D";
 
 export type CharType = InvisibleChar | "mix";
 
-const INVISIBLE_CHARS: InvisibleChar[] = ["\u200B", "\u200C", "\u200D"];
+/** Returns a number in [0, 1), like `Math.random`. Tests pass a seeded one. */
+export type RandomSource = () => number;
 
-function getCharForMode(charType: CharType, index?: number): string {
-  if (charType === "mix") {
-    const idx =
-      index !== undefined ? index : Math.floor(Math.random() * INVISIBLE_CHARS.length);
-    return INVISIBLE_CHARS[idx % INVISIBLE_CHARS.length];
-  }
-  return charType;
+export const INVISIBLE_CHARS: readonly InvisibleChar[] = ["\u200B", "\u200C", "\u200D"];
+
+/**
+ * The invisible character to insert. Mix rotates U+200B → U+200C → U+200D by
+ * `index`, or picks one at random when there is no index (Random mode).
+ */
+function pickChar(charType: CharType, index: number | undefined, random: RandomSource): string {
+  if (charType !== "mix") return charType;
+  const i = index ?? Math.floor(random() * INVISIBLE_CHARS.length);
+  return INVISIBLE_CHARS[i % INVISIBLE_CHARS.length];
+}
+
+/** Inserts an invisible character after every match of `pattern`. */
+function insertAfter(text: string, pattern: RegExp, charType: CharType, random: RandomSource): string {
+  let count = 0;
+  return text.replace(pattern, (match) => match + pickChar(charType, count++, random));
 }
 
 /**
- * Injects zero-width (or other invisible) characters into text according to mode.
+ * Injects zero-width characters into text according to mode.
+ *
+ * - `interval`: one between every pair of characters.
+ * - `random`: each gap between characters gets one with probability `density`%
+ *   (so 100 is the same as `interval`, 0 changes nothing).
+ * - `space-only`: one after every whitespace character.
+ * - `url-breaker`: one after every `:`, `.` and `/`.
+ *
+ * "Character" means what a reader sees as one character (a grapheme cluster),
+ * so emoji, flags and accented letters are never split.
  */
 export function injectZeroWidth(
   text: string,
   mode: InjectionMode,
   charType: CharType = "\u200B",
-  density: number = 50
+  density: number = 50,
+  random: RandomSource = Math.random
 ): string {
   if (!text) return text;
 
-  const chars = text.split("");
-
-  if (mode === "interval") {
-    return chars
-      .map((c, i) => (i < chars.length - 1 ? c + getCharForMode(charType, i) : c))
-      .join("");
+  switch (mode) {
+    case "interval":
+    case "random": {
+      const chars = splitGraphemes(text);
+      let out = chars[0];
+      for (let i = 1; i < chars.length; i++) {
+        if (mode === "interval") out += pickChar(charType, i - 1, random);
+        else if (random() * 100 < density) out += pickChar(charType, undefined, random);
+        out += chars[i];
+      }
+      return out;
+    }
+    case "space-only":
+      return insertAfter(text, /\s/g, charType, random);
+    case "url-breaker":
+      return insertAfter(text, /[:./]/g, charType, random);
+    default:
+      return text;
   }
-
-  if (mode === "random") {
-    return chars
-      .map((c) => {
-        return Math.random() * 100 < density
-          ? c + getCharForMode(charType)
-          : c;
-      })
-      .join("");
-  }
-
-  if (mode === "space-only") {
-    let insertIndex = 0;
-    return text.replace(/\s/g, (match) => {
-      const invisible = getCharForMode(charType, insertIndex++);
-      return match + invisible;
-    });
-  }
-
-  if (mode === "url-breaker") {
-    let insertIndex = 0;
-    return text.replace(/([:./])/g, (match) => {
-      const invisible = getCharForMode(charType, insertIndex++);
-      return match + invisible;
-    });
-  }
-
-  return text;
 }
 
 export type InspectorStyle = "tag" | "block";
