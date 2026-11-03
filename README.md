@@ -166,9 +166,8 @@ screenshot script); the comments at the top of each file say how.
 pull request. On a push to `main` it also uploads `out/` and deploys it to GitHub Pages. For that, the
 repository's **Settings → Pages → Build and deployment → Source** has to be **GitHub Actions**.
 
-If you fork it under another name, change `basePath` and `assetPrefix` in `next.config.mjs` to
-`/<your-repo-name>`.
+If you fork it under another name, change `basePath` in `next.config.mjs` to `/<your-repo-name>`.
 
 ## License
 
-MIT
+[MIT](LICENSE) © 2026 Nat Lee

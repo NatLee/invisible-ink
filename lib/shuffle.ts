@@ -7,6 +7,9 @@ import { splitGraphemes, type RandomSource } from "./text";
 
 export type ShuffleStrategy = "word" | "sentence" | "char-block";
 
+/** Default block size for the char-block strategy. */
+export const DEFAULT_BLOCK_SIZE = 3;
+
 /** A piece of the text, and whether the shuffle may move it. */
 type Token = { text: string; movable: boolean };
 
@@ -18,14 +21,23 @@ function wordTokens(text: string): Token[] {
     .map((t) => ({ text: t, movable: /\S/.test(t) }));
 }
 
+/** Marks that end a sentence (a line break also ends one). */
+const SENTENCE_END = ".!?。！？";
+
+/** A sentence with its end marks, a run of end marks on their own, or line breaks. */
+const SENTENCE_CHUNK = new RegExp(
+  `[^${SENTENCE_END}\\n]+[${SENTENCE_END}]*|[${SENTENCE_END}]+|\\n+`,
+  "g"
+);
+
 /**
- * Sentences move together with their end punctuation (. ! ? 。 ！ ？);
- * a line break always ends a sentence. Spaces and line breaks between
- * sentences stay where they were.
+ * Sentences move together with their end marks (SENTENCE_END); a line break
+ * always ends a sentence. Spaces and line breaks between sentences stay
+ * where they were.
  */
 function sentenceTokens(text: string): Token[] {
   const tokens: Token[] = [];
-  const chunks = Array.from(text.matchAll(/[^.!?。！？\n]+[.!?。！？]*|[.!?。！？]+|\n+/g), (m) => m[0]);
+  const chunks = Array.from(text.matchAll(SENTENCE_CHUNK), (m) => m[0]);
   for (const chunk of chunks) {
     const lead = chunk.match(/^\s*/)![0];
     const body = chunk.slice(lead.length).trimEnd();
@@ -76,7 +88,7 @@ function shuffleTokens(tokens: Token[], random: RandomSource): string {
 export function shuffleFragments(
   text: string,
   strategy: ShuffleStrategy,
-  charBlockSize: number = 3,
+  charBlockSize: number = DEFAULT_BLOCK_SIZE,
   random: RandomSource = Math.random
 ): string {
   if (!text.trim()) return text;

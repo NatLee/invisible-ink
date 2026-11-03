@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   injectZeroWidth,
-  renderInvisibleForInspector,
+  INVISIBLE_CHARS,
+  codePointHex,
+  renderInvisibleAsTags,
   splitInvisible,
   type CharType,
   type InjectionMode,
@@ -69,15 +71,13 @@ describe("injectZeroWidth", () => {
   });
 });
 
-describe("renderInvisibleForInspector", () => {
-  it("returns the text as is when the inspector is off", () => {
-    expect(renderInvisibleForInspector(`a${ZWSP}b`, false)).toBe(`a${ZWSP}b`);
+describe("renderInvisibleAsTags", () => {
+  it("shows each invisible character as its code", () => {
+    expect(renderInvisibleAsTags(`a${ZWSP}b${ZWNJ}c${ZWJ}d`)).toBe("a<200B>b<200C>c<200D>d");
   });
 
-  it("shows each invisible character as its code", () => {
-    expect(renderInvisibleForInspector(`a${ZWSP}b${ZWNJ}c${ZWJ}d`, true, "tag")).toBe(
-      "a<200B>b<200C>c<200D>d"
-    );
+  it("leaves text without invisible characters alone", () => {
+    expect(renderInvisibleAsTags("plain <200B> text")).toBe("plain <200B> text");
   });
 });
 
@@ -155,5 +155,25 @@ describe("splitInvisible (inspector block view)", () => {
     const parts = splitInvisible(text);
     expect(join(parts)).toBe(text);
     expect(parts.some((p) => p.kind === "text" && p.text === WHOLE.flag)).toBe(true);
+  });
+});
+
+describe("INVISIBLE_CHARS table", () => {
+  it("only holds invisible formatting characters (Unicode category Cf)", () => {
+    const formatChar = new RegExp(String.raw`^\p{Cf}$`, "u");
+    for (const { char } of INVISIBLE_CHARS) expect(char).toMatch(formatChar);
+  });
+
+  it("gives every character a tag and a block, derived from its code point", () => {
+    for (const { char } of INVISIBLE_CHARS) {
+      expect(renderInvisibleAsTags(`a${char}b`)).toBe(`a<${codePointHex(char)}>b`);
+      expect(splitInvisible(`a${char}b`)[1]).toEqual({ kind: "invisible", char });
+    }
+  });
+
+  it("formats code points as four or more upper-case hex digits", () => {
+    expect(codePointHex("\u200B")).toBe("200B");
+    expect(codePointHex("A")).toBe("0041");
+    expect(codePointHex("\u{1F600}")).toBe("1F600");
   });
 });

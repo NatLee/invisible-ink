@@ -3,6 +3,9 @@
 import type { ShuffleStrategy } from "@/lib/shuffle";
 import { stripInput } from "./styles";
 
+/** Block sizes the slider offers (the library accepts any size from 1). */
+const BLOCK_SIZE_RANGE = { min: 2, max: 8 };
+
 const STRATEGIES: { value: ShuffleStrategy; label: string }[] = [
   { value: "word", label: "依單字" },
   { value: "sentence", label: "依句子" },
@@ -55,14 +58,11 @@ export default function ShuffleOptions({
           <input
             id="char-block-size"
             type="range"
-            min={2}
-            max={8}
+            min={BLOCK_SIZE_RANGE.min}
+            max={BLOCK_SIZE_RANGE.max}
             value={charBlockSize}
             onChange={(e) => onCharBlockSizeChange(Number(e.target.value))}
             className="w-32 h-2 rounded-lg appearance-none bg-slate-600 accent-violet-400"
-            aria-valuemin={2}
-            aria-valuemax={8}
-            aria-valuenow={charBlockSize}
           />
         </div>
       )}

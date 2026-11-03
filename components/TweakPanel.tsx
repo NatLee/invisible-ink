@@ -1,24 +1,10 @@
 "use client";
 
-import type { InjectionMode, CharType } from "@/lib/injector";
+import { INVISIBLE_CHARS, codePointHex, type InjectionMode, type CharType } from "@/lib/injector";
 import { stripInput } from "./styles";
 
-const CHAR_TYPE_CODES = ["200B", "200C", "200D", "mix"] as const;
-type CharTypeCode = (typeof CHAR_TYPE_CODES)[number];
-
-function charTypeToCode(c: CharType): CharTypeCode {
-  if (c === "\u200B") return "200B";
-  if (c === "\u200C") return "200C";
-  if (c === "\u200D") return "200D";
-  return "mix";
-}
-
-function codeToCharType(code: CharTypeCode): CharType {
-  if (code === "200B") return "\u200B";
-  if (code === "200C") return "\u200C";
-  if (code === "200D") return "\u200D";
-  return "mix";
-}
+/** Random mode density is a percentage. */
+const DENSITY_RANGE = { min: 0, max: 100 };
 
 const MODE_OPTIONS: { value: InjectionMode; label: string }[] = [
   { value: "interval", label: "Full Interval" },
@@ -27,12 +13,18 @@ const MODE_OPTIONS: { value: InjectionMode; label: string }[] = [
   { value: "url-breaker", label: "URL Breaker" },
 ];
 
-const CHAR_OPTIONS: { value: CharTypeCode; label: string }[] = [
-  { value: "200B", label: "Zero Width Space (U+200B)" },
-  { value: "200C", label: "Zero Width Non-Joiner (U+200C)" },
-  { value: "200D", label: "Zero Width Joiner (U+200D)" },
-  { value: "mix", label: "Mix" },
+/** One option per invisible character (value "200B" etc.), plus Mix. */
+const CHAR_OPTIONS: { value: string; label: string; charType: CharType }[] = [
+  ...INVISIBLE_CHARS.map(({ char, name }) => ({
+    value: codePointHex(char),
+    label: `${name} (U+${codePointHex(char)})`,
+    charType: char,
+  })),
+  { value: "mix", label: "Mix", charType: "mix" },
 ];
+
+const optionFor = (charType: CharType) => CHAR_OPTIONS.find((o) => o.charType === charType)!;
+const charTypeFor = (value: string) => CHAR_OPTIONS.find((o) => o.value === value)!.charType;
 
 export default function TweakPanel({
   mode,
@@ -85,8 +77,8 @@ export default function TweakPanel({
         </label>
         <select
           id="char-type"
-          value={charTypeToCode(charType)}
-          onChange={(e) => onCharTypeChange(codeToCharType(e.target.value as CharTypeCode))}
+          value={optionFor(charType).value}
+          onChange={(e) => onCharTypeChange(charTypeFor(e.target.value))}
           className={`min-w-[180px] ${stripInput}`}
         >
           {CHAR_OPTIONS.map((o) => (
@@ -105,14 +97,11 @@ export default function TweakPanel({
           <input
             id="density"
             type="range"
-            min={0}
-            max={100}
+            min={DENSITY_RANGE.min}
+            max={DENSITY_RANGE.max}
             value={density}
             onChange={(e) => onDensityChange(Number(e.target.value))}
             className="w-full h-2 rounded-lg appearance-none bg-slate-600 accent-violet-400"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={density}
           />
         </div>
       )}

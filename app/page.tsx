@@ -10,30 +10,52 @@ import ShuffleOptions from "@/components/ShuffleOptions";
 import HomoglyphOptions from "@/components/HomoglyphOptions";
 import {
   injectZeroWidth,
+  DEFAULT_CHAR_TYPE,
+  DEFAULT_DENSITY,
   type InjectionMode,
   type CharType,
   type InspectorStyle,
 } from "@/lib/injector";
-import { shuffleFragments, type ShuffleStrategy } from "@/lib/shuffle";
+import { shuffleFragments, DEFAULT_BLOCK_SIZE, type ShuffleStrategy } from "@/lib/shuffle";
 import { applyHomoglyph, type HomoglyphStrength } from "@/lib/homoglyph";
 import { encodeForDisplay } from "@/lib/text";
 
-const DEFAULT_MODE: InjectionMode = "interval";
-const DEFAULT_CHAR: CharType = "\u200B";
-const DEFAULT_DENSITY = 50;
+/** What the source box shows on first load (Reset clears it). */
+const SAMPLE_TEXT = "https://natlee.github.io/invisible-ink/";
+
+/** Starting value of every option; Reset puts them all back. */
+const DEFAULTS: {
+  mode: InjectionMode;
+  charType: CharType;
+  density: number;
+  inspectorEnabled: boolean;
+  inspectorStyle: InspectorStyle;
+  shuffleStrategy: ShuffleStrategy;
+  charBlockSize: number;
+  homoglyphStrength: HomoglyphStrength;
+} = {
+  mode: "interval",
+  charType: DEFAULT_CHAR_TYPE,
+  density: DEFAULT_DENSITY,
+  inspectorEnabled: false,
+  inspectorStyle: "tag",
+  shuffleStrategy: "word",
+  charBlockSize: DEFAULT_BLOCK_SIZE,
+  homoglyphStrength: "medium",
+};
 
 export default function Home() {
   const [tool, setTool] = useState<ToolId>("zero-width");
-  const [source, setSource] = useState("https://natlee.github.io/invisible-ink/");
-  const [mode, setMode] = useState<InjectionMode>(DEFAULT_MODE);
-  const [charType, setCharType] = useState<CharType>(DEFAULT_CHAR);
-  const [density, setDensity] = useState(DEFAULT_DENSITY);
-  const [inspectorEnabled, setInspectorEnabled] = useState(false);
-  const [inspectorStyle, setInspectorStyle] = useState<InspectorStyle>("tag");
+  const [source, setSource] = useState(SAMPLE_TEXT);
+  const [mode, setMode] = useState(DEFAULTS.mode);
+  const [charType, setCharType] = useState(DEFAULTS.charType);
+  const [density, setDensity] = useState(DEFAULTS.density);
+  const [inspectorEnabled, setInspectorEnabled] = useState(DEFAULTS.inspectorEnabled);
+  const [inspectorStyle, setInspectorStyle] = useState(DEFAULTS.inspectorStyle);
 
-  const [shuffleStrategy, setShuffleStrategy] = useState<ShuffleStrategy>("word");
-  const [charBlockSize, setCharBlockSize] = useState(3);
-  const [homoglyphStrength, setHomoglyphStrength] = useState<HomoglyphStrength>("medium");
+  const [shuffleStrategy, setShuffleStrategy] = useState(DEFAULTS.shuffleStrategy);
+  const [charBlockSize, setCharBlockSize] = useState(DEFAULTS.charBlockSize);
+  const [homoglyphStrength, setHomoglyphStrength] = useState(DEFAULTS.homoglyphStrength);
 
   const zeroWidthResult = useMemo(
     () => injectZeroWidth(source, mode, charType, density),
@@ -52,23 +74,23 @@ export default function Home() {
     setHomoglyphResult(source.trim() ? applyHomoglyph(source, homoglyphStrength) : "");
   }, [source, homoglyphStrength]);
 
-  const result =
-    tool === "zero-width"
-      ? zeroWidthResult
-      : tool === "shuffle"
-        ? shuffleResult
-        : homoglyphResult;
+  const results: Record<ToolId, string> = {
+    "zero-width": zeroWidthResult,
+    shuffle: shuffleResult,
+    homoglyph: homoglyphResult,
+  };
+  const result = results[tool];
 
   const handleReset = () => {
     setSource("");
-    setMode(DEFAULT_MODE);
-    setCharType(DEFAULT_CHAR);
-    setDensity(DEFAULT_DENSITY);
-    setInspectorEnabled(false);
-    setInspectorStyle("tag");
-    setShuffleStrategy("word");
-    setCharBlockSize(3);
-    setHomoglyphStrength("medium");
+    setMode(DEFAULTS.mode);
+    setCharType(DEFAULTS.charType);
+    setDensity(DEFAULTS.density);
+    setInspectorEnabled(DEFAULTS.inspectorEnabled);
+    setInspectorStyle(DEFAULTS.inspectorStyle);
+    setShuffleStrategy(DEFAULTS.shuffleStrategy);
+    setCharBlockSize(DEFAULTS.charBlockSize);
+    setHomoglyphStrength(DEFAULTS.homoglyphStrength);
   };
 
   const originalLength = source.length;
