@@ -4,17 +4,21 @@ import CopyButton from "./CopyButton";
 import {
   renderInvisibleAsTags,
   splitInvisible,
+  codePointHex,
+  INVISIBLE_CHARS,
   type InspectorStyle,
   type CharType,
   type InvisibleChar,
 } from "@/lib/injector";
 
 /** How each invisible character is drawn in the block view when Mix is on. */
-const MIX_BLOCKS: Record<InvisibleChar, { symbol: string; code: string; className: string }> = {
-  "\u200B": { symbol: "\u25A0", code: "U+200B", className: "bg-red-400 text-red-900" },
-  "\u200C": { symbol: "\u25A1", code: "U+200C", className: "bg-blue-400 text-blue-900" },
-  "\u200D": { symbol: "\u25AA", code: "U+200D", className: "bg-emerald-500 text-emerald-900" },
+const MIX_BLOCKS: Record<InvisibleChar, { symbol: string; className: string }> = {
+  "\u200B": { symbol: "\u25A0", className: "bg-red-400 text-red-900" },
+  "\u200C": { symbol: "\u25A1", className: "bg-blue-400 text-blue-900" },
+  "\u200D": { symbol: "\u25AA", className: "bg-emerald-500 text-emerald-900" },
 };
+
+const codeLabel = (char: string) => `U+${codePointHex(char)}`;
 
 export default function ResultSection({
   result,
@@ -45,11 +49,11 @@ export default function ResultSection({
       if (part.kind === "text") return <span key={i}>{part.text}</span>;
       const block = MIX_BLOCKS[part.char];
       return distinguishMix ? (
-        <span key={i} className={`${block.className} rounded px-0.5`} title={block.code} aria-hidden>
+        <span key={i} className={`${block.className} rounded px-0.5`} title={codeLabel(part.char)} aria-hidden>
           {block.symbol}
         </span>
       ) : (
-        <span key={i} className="bg-red-400 text-red-900 rounded px-0.5" title={block.code} aria-hidden>
+        <span key={i} className="bg-red-400 text-red-900 rounded px-0.5" title={codeLabel(part.char)} aria-hidden>
           {"\u25AF"}
         </span>
       );
@@ -124,12 +128,12 @@ export default function ResultSection({
           )}
           {distinguishMix && (
             <ul className="flex items-center gap-3 text-xs text-slate-500 font-mono" aria-label="方塊顏色說明">
-              {Object.values(MIX_BLOCKS).map((b) => (
-                <li key={b.code} className="inline-flex items-center gap-1">
-                  <span className={`${b.className} rounded px-0.5`} aria-hidden>
-                    {b.symbol}
+              {INVISIBLE_CHARS.map(({ char }) => (
+                <li key={char} className="inline-flex items-center gap-1">
+                  <span className={`${MIX_BLOCKS[char].className} rounded px-0.5`} aria-hidden>
+                    {MIX_BLOCKS[char].symbol}
                   </span>
-                  {b.code}
+                  {codeLabel(char)}
                 </li>
               ))}
             </ul>

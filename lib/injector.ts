@@ -6,20 +6,41 @@ export type InjectionMode =
   | "space-only"
   | "url-breaker";
 
-export type InvisibleChar = "\u200B" | "\u200C" | "\u200D";
+/**
+ * The invisible characters the tool can insert, in Mix rotation order.
+ * Everything else (the type, the Debug tags and blocks, the options in the
+ * UI) is derived from this list, so adding one means adding one line here.
+ */
+export const INVISIBLE_CHARS = [
+  { char: "\u200B", name: "Zero Width Space" },
+  { char: "\u200C", name: "Zero Width Non-Joiner" },
+  { char: "\u200D", name: "Zero Width Joiner" },
+] as const;
+
+export type InvisibleChar = (typeof INVISIBLE_CHARS)[number]["char"];
 
 export type CharType = InvisibleChar | "mix";
 
-export const INVISIBLE_CHARS: readonly InvisibleChar[] = ["\u200B", "\u200C", "\u200D"];
+/** The default character: the first one, U+200B zero width space. */
+export const DEFAULT_CHAR_TYPE: CharType = INVISIBLE_CHARS[0].char;
+
+/** Hex code point as shown in the UI, e.g. "200B" for U+200B. */
+export function codePointHex(char: string): string {
+  return char.codePointAt(0)!.toString(16).toUpperCase().padStart(4, "0");
+}
+
+const INVISIBLE_CLASS = `[${INVISIBLE_CHARS.map((c) => c.char).join("")}]`;
+
+const isInvisibleChar = (s: string): s is InvisibleChar => INVISIBLE_CHARS.some((c) => c.char === s);
 
 /**
- * The invisible character to insert. Mix rotates U+200B → U+200C → U+200D by
+ * The invisible character to insert. Mix rotates through INVISIBLE_CHARS by
  * `index`, or picks one at random when there is no index (Random mode).
  */
 function pickChar(charType: CharType, index: number | undefined, random: RandomSource): string {
   if (charType !== "mix") return charType;
   const i = index ?? Math.floor(random() * INVISIBLE_CHARS.length);
-  return INVISIBLE_CHARS[i % INVISIBLE_CHARS.length];
+  return INVISIBLE_CHARS[i % INVISIBLE_CHARS.length].char;
 }
 
 /** Inserts an invisible character after every match of `pattern`. */
@@ -43,7 +64,7 @@ function insertAfter(text: string, pattern: RegExp, charType: CharType, random: 
 export function injectZeroWidth(
   text: string,
   mode: InjectionMode,
-  charType: CharType = "\u200B",
+  charType: CharType = DEFAULT_CHAR_TYPE,
   density: number = 50,
   random: RandomSource = Math.random
 ): string {
@@ -72,28 +93,18 @@ export function injectZeroWidth(
 
 export type InspectorStyle = "tag" | "block";
 
-const ZWSP = "\u200B";
-const ZWNJ = "\u200C";
-const ZWJ = "\u200D";
-
 /**
  * Debug view, tag style: shows each invisible character as its code, e.g.
  * <200B>. (The block style is drawn by the component from splitInvisible.)
  */
 export function renderInvisibleAsTags(text: string): string {
-  return text
-    .replace(new RegExp(ZWSP, "g"), "<200B>")
-    .replace(new RegExp(ZWNJ, "g"), "<200C>")
-    .replace(new RegExp(ZWJ, "g"), "<200D>");
+  return text.replace(new RegExp(INVISIBLE_CLASS, "g"), (c) => `<${codePointHex(c)}>`);
 }
 
 /** A run of ordinary text, or one invisible character (for the block view). */
 export type InspectorPart =
   | { kind: "text"; text: string }
   | { kind: "invisible"; char: InvisibleChar };
-
-const isInvisibleChar = (s: string): s is InvisibleChar =>
-  (INVISIBLE_CHARS as readonly string[]).includes(s);
 
 /**
  * Splits text into ordinary runs and the invisible characters between them,
@@ -102,7 +113,7 @@ const isInvisibleChar = (s: string): s is InvisibleChar =>
  */
 export function splitInvisible(text: string): InspectorPart[] {
   return text
-    .split(/([\u200B\u200C\u200D])/)
+    .split(new RegExp(`(${INVISIBLE_CLASS})`))
     .filter(Boolean)
     .map((piece) =>
       isInvisibleChar(piece) ? { kind: "invisible", char: piece } : { kind: "text", text: piece }

@@ -10,6 +10,7 @@ import ShuffleOptions from "@/components/ShuffleOptions";
 import HomoglyphOptions from "@/components/HomoglyphOptions";
 import {
   injectZeroWidth,
+  DEFAULT_CHAR_TYPE,
   type InjectionMode,
   type CharType,
   type InspectorStyle,
@@ -19,14 +20,13 @@ import { applyHomoglyph, type HomoglyphStrength } from "@/lib/homoglyph";
 import { encodeForDisplay } from "@/lib/text";
 
 const DEFAULT_MODE: InjectionMode = "interval";
-const DEFAULT_CHAR: CharType = "\u200B";
 const DEFAULT_DENSITY = 50;
 
 export default function Home() {
   const [tool, setTool] = useState<ToolId>("zero-width");
   const [source, setSource] = useState("https://natlee.github.io/invisible-ink/");
   const [mode, setMode] = useState<InjectionMode>(DEFAULT_MODE);
-  const [charType, setCharType] = useState<CharType>(DEFAULT_CHAR);
+  const [charType, setCharType] = useState<CharType>(DEFAULT_CHAR_TYPE);
   const [density, setDensity] = useState(DEFAULT_DENSITY);
   const [inspectorEnabled, setInspectorEnabled] = useState(false);
   const [inspectorStyle, setInspectorStyle] = useState<InspectorStyle>("tag");
@@ -62,7 +62,7 @@ export default function Home() {
   const handleReset = () => {
     setSource("");
     setMode(DEFAULT_MODE);
-    setCharType(DEFAULT_CHAR);
+    setCharType(DEFAULT_CHAR_TYPE);
     setDensity(DEFAULT_DENSITY);
     setInspectorEnabled(false);
     setInspectorStyle("tag");
