@@ -37,10 +37,10 @@ const segmenter =
  *
  * Compatibility fallback (the only one in the app): without `Intl.Segmenter`
  * this splits by code point, which still never cuts an emoji in half but does
- * separate combining accents. It is here because Next.js 14 targets browsers
- * back to Chrome 64, Firefox 67 and Safari 12, while `Intl.Segmenter` needs
- * Chrome/Edge 87, Firefox 125 or Safari 14.1. Once the supported browsers are
- * raised past those, drop `segmenter`'s null case and this branch.
+ * separate combining accents. Next.js 16 targets Chrome/Edge 111, Firefox 111
+ * and Safari 16.4; all of them have `Intl.Segmenter` except Firefox 111-124
+ * (it arrived in Firefox 125). Once Firefox 125 is the oldest supported
+ * version, drop `segmenter`'s null case and this branch.
  */
 export function splitGraphemes(text: string): string[] {
   if (!segmenter) return Array.from(text);
