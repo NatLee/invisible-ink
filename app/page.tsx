@@ -96,18 +96,11 @@ export default function Home() {
       </header>
 
       <main className="flex-1 container max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-6 space-y-5">
-        <div
-          role="tabpanel"
-          id="panel-toolbox"
-          aria-labelledby="tab-toolbox"
-          className="space-y-4"
-        >
-          <div>
-            <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block mb-2">
-              工具箱
-            </span>
-            <ToolSelector value={tool} onChange={setTool} />
-          </div>
+        <div>
+          <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block mb-2">
+            工具箱
+          </span>
+          <ToolSelector value={tool} onChange={setTool} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 min-h-0">
@@ -130,8 +123,9 @@ export default function Home() {
 
         <div
           className="rounded-xl bg-slate-800/90 text-slate-100 px-4 py-3 border border-slate-700/50"
-          role="region"
-          aria-label={tool === "zero-width" ? "注入設定" : tool === "shuffle" ? "打亂設定" : "同形字設定"}
+          role="tabpanel"
+          id={`panel-${tool}`}
+          aria-labelledby={`tab-${tool}`}
         >
           {tool === "zero-width" && (
             <TweakPanel

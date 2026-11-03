@@ -26,7 +26,7 @@ export default function ToolSelector({
           key={t.id}
           role="tab"
           aria-selected={value === t.id}
-          aria-controls={`panel-${t.id}`}
+          aria-controls={value === t.id ? `panel-${t.id}` : undefined}
           id={`tab-${t.id}`}
           type="button"
           onClick={() => onChange(t.id)}
