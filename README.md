@@ -8,7 +8,8 @@
 <p align="center">
   <a href="https://github.com/NatLee/invisible-ink/actions/workflows/ci.yml"><img src="https://github.com/NatLee/invisible-ink/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
   <a href="https://natlee.github.io/invisible-ink/"><img src="https://img.shields.io/badge/demo-GitHub%20Pages-8250df" alt="Live demo on GitHub Pages"></a>
-  <img src="https://img.shields.io/badge/Next.js-14-black" alt="Next.js 14">
+  <img src="https://img.shields.io/badge/Next.js-16-black" alt="Next.js 16">
+  <img src="https://img.shields.io/badge/React-19-149eca" alt="React 19">
   <img src="https://img.shields.io/badge/TypeScript-5-3178c6" alt="TypeScript 5">
 </p>
 
@@ -141,7 +142,7 @@ because that is its path on GitHub Pages (`basePath` in [`next.config.mjs`](next
 Before sending a change, run the same checks as CI:
 
 ```bash
-npm run lint        # ESLint (next lint)
+npm run lint        # ESLint 9 (eslint .)
 npm run typecheck   # tsc --noEmit
 npm test            # Vitest unit tests for lib/
 npm run build       # static export to out/

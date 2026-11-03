@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { applyHomoglyph, type HomoglyphStrength } from "./homoglyph";
-import { seeded } from "./test-utils";
+import { seededRandom } from "./text";
 
 const STRENGTHS: HomoglyphStrength[] = ["minimal", "medium", "full"];
 
@@ -35,7 +35,7 @@ function substitutes(strength: HomoglyphStrength): Record<string, string[]> {
     const seen = new Set<string>();
     for (let i = 0; i < 100; i++) seen.add(applyHomoglyph(letter, strength));
     seen.delete(letter);
-    if (seen.size) out[letter] = Array.from(seen).sort();
+    if (seen.size) out[letter] = [...seen].sort();
   }
   return out;
 }
@@ -91,6 +91,6 @@ describe("applyHomoglyph lookalikes", () => {
   });
 
   it("is repeatable with the same random source", () => {
-    expect(applyHomoglyph("Hello world", "full", seeded(5))).toBe(applyHomoglyph("Hello world", "full", seeded(5)));
+    expect(applyHomoglyph("Hello world", "full", seededRandom(5))).toBe(applyHomoglyph("Hello world", "full", seededRandom(5)));
   });
 });

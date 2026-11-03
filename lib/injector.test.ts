@@ -8,7 +8,7 @@ import {
   type CharType,
   type InjectionMode,
 } from "./injector";
-import { seeded } from "./test-utils";
+import { seededRandom } from "./text";
 
 const ZWSP = "\u200B";
 const ZWNJ = "\u200C";
@@ -116,15 +116,15 @@ describe("injectZeroWidth Random mode", () => {
   });
 
   it("fills about density% of the gaps", () => {
-    const out = injectZeroWidth("a".repeat(2001), "random", ZWSP, 30, seeded(1));
+    const out = injectZeroWidth("a".repeat(2001), "random", ZWSP, 30, seededRandom(1));
     const inserted = out.length - 2001;
     expect(inserted).toBeGreaterThan(500);
     expect(inserted).toBeLessThan(700);
   });
 
   it("is repeatable with the same random source", () => {
-    const a = injectZeroWidth("hello world", "random", "mix", 50, seeded(42));
-    const b = injectZeroWidth("hello world", "random", "mix", 50, seeded(42));
+    const a = injectZeroWidth("hello world", "random", "mix", 50, seededRandom(42));
+    const b = injectZeroWidth("hello world", "random", "mix", 50, seededRandom(42));
     expect(a).toBe(b);
   });
 });
@@ -160,8 +160,7 @@ describe("splitInvisible (inspector block view)", () => {
 
 describe("INVISIBLE_CHARS table", () => {
   it("only holds invisible formatting characters (Unicode category Cf)", () => {
-    const formatChar = new RegExp(String.raw`^\p{Cf}$`, "u");
-    for (const { char } of INVISIBLE_CHARS) expect(char).toMatch(formatChar);
+    for (const { char } of INVISIBLE_CHARS) expect(char).toMatch(/^\p{Cf}$/u);
   });
 
   it("gives every character a tag and a block, derived from its code point", () => {

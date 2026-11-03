@@ -37,8 +37,7 @@ const SENTENCE_CHUNK = new RegExp(
  */
 function sentenceTokens(text: string): Token[] {
   const tokens: Token[] = [];
-  const chunks = Array.from(text.matchAll(SENTENCE_CHUNK), (m) => m[0]);
-  for (const chunk of chunks) {
+  for (const [chunk] of text.matchAll(SENTENCE_CHUNK)) {
     const lead = chunk.match(/^\s*/)![0];
     const body = chunk.slice(lead.length).trimEnd();
     const trail = chunk.slice(lead.length + body.length);
