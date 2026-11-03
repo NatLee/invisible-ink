@@ -1,0 +1,137 @@
+<!doctype html>
+<!--
+  README banner: the same word, as people see it and as a machine reads it.
+  The strings are real output of lib/injector.ts (Full Interval, U+200B).
+  Render the light and dark versions (#dark picks the dark theme) with a Chromium-based browser, e.g.
+    msedge --headless=new --hide-scrollbars --force-device-scale-factor=2 --window-size=960,420
+           --default-background-color=00000000 --virtual-time-budget=5000
+           --screenshot=hero-dark.png "file:///…/hero.html#dark"
+  then shrink each PNG to a 256-colour palette:
+    magick hero-dark.png -strip -dither None -colors 256 -define png:compression-level=9 PNG8:hero-dark.png
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Invisible Ink banner</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=block" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff; --bg2: #f6f8fa; --ink: #1f2328; --muted: #59636e; --line: #d1d9e0; --card: #ffffff;
+    --violet: #8250df; --violet-bg: rgba(130,80,223,.12); --violet-line: rgba(130,80,223,.45);
+    --green: #1a7f37; --red: #cf222e;
+    --shadow: 0 1px 2px rgba(31,35,40,.06), 0 6px 18px rgba(31,35,40,.06);
+    --tint1: rgba(130,80,223,.11); --tint2: rgba(79,70,229,.08);
+  }
+  .dark {
+    --bg: #0d1117; --bg2: #151b23; --ink: #f0f6fc; --muted: #9198a1; --line: #3d444d; --card: #151b23;
+    --violet: #ab7df8; --violet-bg: rgba(171,125,248,.16); --violet-line: rgba(171,125,248,.5);
+    --green: #3fb950; --red: #f85149;
+    --shadow: 0 1px 2px rgba(0,0,0,.4); /* no big blur: it bands once the PNG is reduced to 256 colours */
+    --tint1: rgba(171,125,248,.16); --tint2: rgba(99,102,241,.12);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: transparent; }
+  body { width: 960px; height: 420px; font-family: Inter, "Segoe UI", sans-serif; color: var(--ink); }
+  .frame { position: relative; width: 960px; height: 420px; border-radius: 22px; overflow: hidden;
+           border: 1px solid var(--line);
+           background: radial-gradient(520px 300px at 92% 8%, var(--tint1), transparent 70%),
+                       radial-gradient(420px 260px at 4% 100%, var(--tint2), transparent 70%), var(--bg); }
+  .dots { position: absolute; inset: 0; opacity: .55;
+          background-image: radial-gradient(var(--line) 1px, transparent 1.2px); background-size: 22px 22px;
+          -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 55%, #000 100%); }
+
+  header { position: absolute; left: 44px; top: 36px; display: flex; align-items: center; gap: 18px; }
+  .mark { width: 58px; height: 58px; border-radius: 16px; box-shadow: var(--shadow); }
+  h1 { margin: 0; font-size: 46px; font-weight: 800; letter-spacing: -0.035em; line-height: 1; }
+  .tag { margin: 8px 0 0; font-size: 18px; color: var(--muted); letter-spacing: -0.005em; }
+  .tag b { color: var(--ink); font-weight: 600; }
+  .pip { position: absolute; right: 44px; top: 44px; font-family: "JetBrains Mono", Consolas, monospace; font-size: 14px;
+         padding: 8px 14px; border-radius: 10px; border: 1px solid var(--line); background: var(--card); box-shadow: var(--shadow); }
+  .pip span { color: var(--muted); margin-right: 8px; }
+
+  .node { position: absolute; background: var(--card); border: 1px solid var(--line); border-radius: 14px;
+          box-shadow: var(--shadow); padding: 14px 18px; }
+  .label { font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted);
+           display: flex; align-items: center; gap: 8px; }
+  .label i { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+  .label .count { margin-left: auto; font-family: "JetBrains Mono", Consolas, monospace; font-size: 11.5px; letter-spacing: 0;
+                  text-transform: none; font-weight: 500; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--ink); }
+
+  /* top row: what people see */
+  #see-a, #see-b { top: 140px; width: 300px; }
+  #see-a { left: 44px; }
+  #see-b { left: 616px; }
+  #see-b .label i { background: var(--violet); }
+  .word { font-family: "JetBrains Mono", Consolas, monospace; font-size: 34px; font-weight: 600; margin-top: 8px; letter-spacing: .02em; }
+  .verdict { position: absolute; top: 160px; left: 362px; width: 236px; text-align: center; }
+  .verdict .eq { font-size: 13px; font-weight: 600; color: var(--muted); }
+  .verdict .pill { display: inline-block; margin-top: 8px; font-family: "JetBrains Mono", Consolas, monospace; font-size: 13px;
+                   padding: 6px 12px; border-radius: 999px; border: 1px solid var(--line); background: var(--card);
+                   font-variant-ligatures: none; }
+  .verdict .pill b { color: var(--red); font-weight: 600; }
+
+  /* bottom row: what a machine reads */
+  #read { left: 44px; top: 262px; width: 872px; padding: 14px 18px 16px; }
+  .row { display: flex; align-items: center; gap: 6px; margin-top: 10px; }
+  .row .who { width: 64px; font-size: 12.5px; color: var(--muted); }
+  .cp { font-family: "JetBrains Mono", Consolas, monospace; display: inline-flex; flex-direction: column; align-items: center;
+        justify-content: center; min-width: 40px; height: 40px; padding: 0 6px; border-radius: 8px; border: 1px solid var(--line);
+        background: var(--bg2); }
+  .cp b { font-size: 16px; font-weight: 600; line-height: 1; }
+  .cp small { font-size: 9.5px; color: var(--muted); margin-top: 3px; line-height: 1; }
+  .cp.zw { border: 1.5px dashed var(--violet-line); background: var(--violet-bg); min-width: 52px; }
+  .cp.zw b { font-size: 11.5px; color: var(--violet); }
+  .cp.zw small { color: var(--violet); opacity: .85; }
+  .legend { position: absolute; right: 18px; top: 14px; font-size: 12.5px; color: var(--muted); display: flex; align-items: center; gap: 8px; }
+  .legend .sw { width: 14px; height: 14px; border-radius: 4px; border: 1.5px dashed var(--violet-line); background: var(--violet-bg); }
+</style>
+</head>
+<body>
+<script>if (location.hash === '#dark') document.documentElement.className = 'dark';</script>
+<div class="frame">
+  <div class="dots"></div>
+
+  <header>
+    <svg class="mark" viewBox="0 0 32 32" aria-hidden="true">
+      <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8b5cf6"/><stop offset="1" stop-color="#4f46e5"/></linearGradient></defs>
+      <rect width="32" height="32" rx="8" fill="url(#g)"/>
+      <path d="M16 5.5c-3.6 4.6-7 8.9-7 12.9a7 7 0 0 0 14 0c0-4-3.4-8.3-7-12.9z" fill="#fff"/>
+      <path d="M12.6 19.2h6.8" stroke="#6d5ae6" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="1.6 2.1"/>
+    </svg>
+    <div>
+      <h1>Invisible Ink</h1>
+      <p class="tag">Text that <b>looks the same</b> to people but <b>isn't the same</b> to machines.</p>
+    </div>
+  </header>
+
+  <div class="pip"><span>open</span>natlee.github.io/invisible-ink</div>
+
+  <div class="node" id="see-a">
+    <div class="label"><i></i>You type</div>
+    <div class="word">secret</div>
+  </div>
+  <div class="verdict">
+    <div class="eq">looks identical on screen</div>
+    <div class="pill">a === b → <b>false</b></div>
+  </div>
+  <div class="node" id="see-b">
+    <div class="label"><i></i>You copy</div>
+    <div class="word">s&#x200B;e&#x200B;c&#x200B;r&#x200B;e&#x200B;t</div>
+  </div>
+
+  <div class="node" id="read">
+    <div class="label"><i></i>What a machine reads</div>
+    <div class="legend"><span class="sw"></span>U+200B zero width space, 0 px wide</div>
+    <div class="row"><span class="who">typed</span>
+      <span class="cp"><b>s</b><small>0073</small></span><span class="cp"><b>e</b><small>0065</small></span><span class="cp"><b>c</b><small>0063</small></span><span class="cp"><b>r</b><small>0072</small></span><span class="cp"><b>e</b><small>0065</small></span><span class="cp"><b>t</b><small>0074</small></span>
+      <span class="who" style="margin-left:12px;width:auto">6 characters</span>
+    </div>
+    <div class="row"><span class="who">copied</span>
+      <span class="cp"><b>s</b><small>0073</small></span><span class="cp zw"><b>ZWSP</b><small>200B</small></span><span class="cp"><b>e</b><small>0065</small></span><span class="cp zw"><b>ZWSP</b><small>200B</small></span><span class="cp"><b>c</b><small>0063</small></span><span class="cp zw"><b>ZWSP</b><small>200B</small></span><span class="cp"><b>r</b><small>0072</small></span><span class="cp zw"><b>ZWSP</b><small>200B</small></span><span class="cp"><b>e</b><small>0065</small></span><span class="cp zw"><b>ZWSP</b><small>200B</small></span><span class="cp"><b>t</b><small>0074</small></span>
+      <span class="who" style="margin-left:12px;width:auto">11 characters</span>
+    </div>
+  </div>
+</div>
+</body>
+</html>
