@@ -3,6 +3,9 @@
 import { INVISIBLE_CHARS, codePointHex, type InjectionMode, type CharType } from "@/lib/injector";
 import { stripInput } from "./styles";
 
+/** Random mode density is a percentage. */
+const DENSITY_RANGE = { min: 0, max: 100 };
+
 const MODE_OPTIONS: { value: InjectionMode; label: string }[] = [
   { value: "interval", label: "Full Interval" },
   { value: "random", label: "Random" },
@@ -94,14 +97,11 @@ export default function TweakPanel({
           <input
             id="density"
             type="range"
-            min={0}
-            max={100}
+            min={DENSITY_RANGE.min}
+            max={DENSITY_RANGE.max}
             value={density}
             onChange={(e) => onDensityChange(Number(e.target.value))}
             className="w-full h-2 rounded-lg appearance-none bg-slate-600 accent-violet-400"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={density}
           />
         </div>
       )}
