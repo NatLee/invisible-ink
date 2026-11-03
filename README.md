@@ -142,7 +142,7 @@ because that is its path on GitHub Pages (`basePath` in [`next.config.mjs`](next
 Before sending a change, run the same checks as CI:
 
 ```bash
-npm run lint        # ESLint 9 (eslint .)
+npm run lint        # ESLint 10 (eslint .)
 npm run typecheck   # tsc --noEmit
 npm test            # Vitest unit tests for lib/
 npm run build       # static export to out/
