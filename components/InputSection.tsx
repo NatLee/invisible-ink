@@ -33,6 +33,7 @@ export default function InputSection({
         aria-describedby="input-count"
         placeholder="請輸入原始文字或網址…"
         value={value}
+        maxLength={MAX_LENGTH}
         onChange={(e) => {
           const v = e.target.value;
           if (v.length <= MAX_LENGTH) onChange(v);
