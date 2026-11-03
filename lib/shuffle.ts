@@ -3,60 +3,99 @@
  * requires trying k! permutations (or solving TSP) — not a simple replace.
  */
 
+import { splitGraphemes, type RandomSource } from "./text";
+
 export type ShuffleStrategy = "word" | "sentence" | "char-block";
 
-function splitWords(text: string): string[] {
-  return text.split(/(\s+)/).filter(Boolean);
+/** A piece of the text, and whether the shuffle may move it. */
+type Token = { text: string; movable: boolean };
+
+/** Words move; the whitespace between them stays where it was. */
+function wordTokens(text: string): Token[] {
+  return text
+    .split(/(\s+)/)
+    .filter(Boolean)
+    .map((t) => ({ text: t, movable: /\S/.test(t) }));
 }
 
-function splitSentences(text: string): string[] {
-  return text.split(/([.!?。！？\n]+)/).filter(Boolean);
-}
-
-function splitCharBlocks(text: string, blockSize: number): string[] {
-  const blocks: string[] = [];
-  for (let i = 0; i < text.length; i += blockSize) {
-    blocks.push(text.slice(i, i + blockSize));
+/**
+ * Sentences move together with their end punctuation (. ! ? 。 ！ ？);
+ * a line break always ends a sentence. Spaces and line breaks between
+ * sentences stay where they were.
+ */
+function sentenceTokens(text: string): Token[] {
+  const tokens: Token[] = [];
+  const chunks = Array.from(text.matchAll(/[^.!?。！？\n]+[.!?。！？]*|[.!?。！？]+|\n+/g), (m) => m[0]);
+  for (const chunk of chunks) {
+    const lead = chunk.match(/^\s*/)![0];
+    const body = chunk.slice(lead.length).trimEnd();
+    const trail = chunk.slice(lead.length + body.length);
+    if (lead) tokens.push({ text: lead, movable: false });
+    if (body) tokens.push({ text: body, movable: true });
+    if (trail) tokens.push({ text: trail, movable: false });
   }
-  return blocks;
+  return tokens;
 }
 
-/** Fisher–Yates shuffle (in-place), returns new array. */
-function shuffleArray<T>(arr: T[]): T[] {
-  const out = [...arr];
-  for (let i = out.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [out[i], out[j]] = [out[j], out[i]];
+/** Fixed-size blocks of whole characters (an emoji counts as one). */
+function charBlockTokens(text: string, blockSize: number): Token[] {
+  const chars = splitGraphemes(text);
+  const tokens: Token[] = [];
+  for (let i = 0; i < chars.length; i += blockSize) {
+    tokens.push({ text: chars.slice(i, i + blockSize).join(""), movable: true });
   }
-  return out;
+  return tokens;
+}
+
+/** Fisher–Yates shuffle, in place. */
+function shuffleInPlace<T>(items: T[], random: RandomSource): void {
+  for (let i = items.length - 1; i > 0; i--) {
+    const j = Math.floor(random() * (i + 1));
+    [items[i], items[j]] = [items[j], items[i]];
+  }
+}
+
+/** Shuffles the movable tokens among the movable slots; fixed tokens stay put. */
+function shuffleTokens(tokens: Token[], random: RandomSource): string {
+  const pieces = tokens.filter((t) => t.movable).map((t) => t.text);
+  const original = [...pieces];
+  shuffleInPlace(pieces, random);
+  // A shuffle can land on the original order (half the time with two pieces).
+  // Rotating by one always changes the order, unless every piece is the same.
+  if (pieces.every((p, i) => p === original[i])) pieces.push(pieces.shift()!);
+  let next = 0;
+  return tokens.map((t) => (t.movable ? pieces[next++] : t.text)).join("");
 }
 
 /**
  * Splits text by strategy, shuffles the segments, joins back.
  * Humans can still read the fragments; machines need k! or TSP to recover order.
+ * When there are at least two different fragments, the result is never the
+ * original order.
  */
 export function shuffleFragments(
   text: string,
   strategy: ShuffleStrategy,
-  charBlockSize: number = 3
+  charBlockSize: number = 3,
+  random: RandomSource = Math.random
 ): string {
   if (!text.trim()) return text;
 
-  let parts: string[];
+  let tokens: Token[];
   switch (strategy) {
     case "word":
-      parts = splitWords(text);
+      tokens = wordTokens(text);
       break;
     case "sentence":
-      parts = splitSentences(text);
+      tokens = sentenceTokens(text);
       break;
     case "char-block":
-      parts = splitCharBlocks(text, Math.max(1, charBlockSize));
+      tokens = charBlockTokens(text, Math.max(1, Math.floor(charBlockSize)));
       break;
     default:
       return text;
   }
 
-  if (parts.length <= 1) return text;
-  return shuffleArray(parts).join("");
+  if (tokens.filter((t) => t.movable).length <= 1) return text;
+  return shuffleTokens(tokens, random);
 }

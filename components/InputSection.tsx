@@ -17,7 +17,7 @@ export default function InputSection({
   return (
     <section aria-labelledby="input-label">
       <div className="flex items-center justify-between gap-2 mb-2">
-        <label id="input-label" className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+        <label id="input-label" htmlFor="source-input" className="text-xs font-medium text-slate-500 uppercase tracking-wider">
           Source
         </label>
         <span
@@ -30,9 +30,11 @@ export default function InputSection({
         </span>
       </div>
       <textarea
+        id="source-input"
         aria-describedby="input-count"
         placeholder="請輸入原始文字或網址…"
         value={value}
+        maxLength={MAX_LENGTH}
         onChange={(e) => {
           const v = e.target.value;
           if (v.length <= MAX_LENGTH) onChange(v);

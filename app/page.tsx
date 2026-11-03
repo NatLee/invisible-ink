@@ -16,6 +16,7 @@ import {
 } from "@/lib/injector";
 import { shuffleFragments, type ShuffleStrategy } from "@/lib/shuffle";
 import { applyHomoglyph, type HomoglyphStrength } from "@/lib/homoglyph";
+import { encodeForDisplay } from "@/lib/text";
 
 const DEFAULT_MODE: InjectionMode = "interval";
 const DEFAULT_CHAR: CharType = "\u200B";
@@ -39,17 +40,17 @@ export default function Home() {
     [source, mode, charType, density]
   );
 
+  // Shuffle and homoglyph are random, so they run after mount rather than in
+  // the static prerender (the HTML and the first client render must match).
+  // Separate effects, so changing one tool's options doesn't re-roll the other.
   const [shuffleResult, setShuffleResult] = useState("");
   const [homoglyphResult, setHomoglyphResult] = useState("");
   useEffect(() => {
-    if (!source.trim()) {
-      setShuffleResult("");
-      setHomoglyphResult("");
-      return;
-    }
-    setShuffleResult(shuffleFragments(source, shuffleStrategy, charBlockSize));
-    setHomoglyphResult(applyHomoglyph(source, homoglyphStrength));
-  }, [source, shuffleStrategy, charBlockSize, homoglyphStrength]);
+    setShuffleResult(source.trim() ? shuffleFragments(source, shuffleStrategy, charBlockSize) : "");
+  }, [source, shuffleStrategy, charBlockSize]);
+  useEffect(() => {
+    setHomoglyphResult(source.trim() ? applyHomoglyph(source, homoglyphStrength) : "");
+  }, [source, homoglyphStrength]);
 
   const result =
     tool === "zero-width"
@@ -68,14 +69,12 @@ export default function Home() {
     setShuffleStrategy("word");
     setCharBlockSize(3);
     setHomoglyphStrength("medium");
-    setShuffleResult("");
-    setHomoglyphResult("");
   };
 
   const originalLength = source.length;
   const resultLength = result.length;
-  const originalEncoded = source ? encodeURIComponent(source) : "";
-  const resultEncoded = result ? encodeURIComponent(result) : "";
+  const originalEncoded = source ? encodeForDisplay(source) : "";
+  const resultEncoded = result ? encodeForDisplay(result) : "";
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -95,18 +94,11 @@ export default function Home() {
       </header>
 
       <main className="flex-1 container max-w-6xl mx-auto px-3 sm:px-4 py-5 sm:py-6 space-y-5">
-        <div
-          role="tabpanel"
-          id="panel-toolbox"
-          aria-labelledby="tab-toolbox"
-          className="space-y-4"
-        >
-          <div>
-            <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block mb-2">
-              工具箱
-            </span>
-            <ToolSelector value={tool} onChange={setTool} />
-          </div>
+        <div>
+          <span className="text-xs font-medium text-slate-500 uppercase tracking-wider block mb-2">
+            工具箱
+          </span>
+          <ToolSelector value={tool} onChange={setTool} />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 min-h-0">
@@ -129,8 +121,9 @@ export default function Home() {
 
         <div
           className="rounded-xl bg-slate-800/90 text-slate-100 px-4 py-3 border border-slate-700/50"
-          role="region"
-          aria-label={tool === "zero-width" ? "注入設定" : tool === "shuffle" ? "打亂設定" : "同形字設定"}
+          role="tabpanel"
+          id={`panel-${tool}`}
+          aria-labelledby={`tab-${tool}`}
         >
           {tool === "zero-width" && (
             <TweakPanel

@@ -1,0 +1,95 @@
+<!doctype html>
+<!--
+  README "How it works" figure: what each of the three tools does to a string.
+  The outputs are real results of lib/injector.ts, lib/homoglyph.ts (medium) and lib/shuffle.ts (word).
+  Render and shrink like hero.html, with --window-size=960,330 (#dark picks the dark theme).
+-->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Invisible Ink tools</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Noto+Sans+TC:wght@500;700&display=block" rel="stylesheet">
+<style>
+  :root {
+    --bg: #ffffff; --bg2: #f6f8fa; --ink: #1f2328; --muted: #59636e; --line: #d1d9e0; --card: #ffffff;
+    --violet: #8250df; --violet-bg: rgba(130,80,223,.12); --violet-line: rgba(130,80,223,.45);
+    --orange: #bc4c00; --orange-bg: rgba(188,76,0,.10); --orange-line: rgba(188,76,0,.45);
+    --blue: #0969da; --blue-bg: rgba(9,105,218,.10); --blue-line: rgba(9,105,218,.40);
+    --shadow: 0 1px 2px rgba(31,35,40,.06), 0 6px 18px rgba(31,35,40,.06);
+  }
+  .dark {
+    --bg: #0d1117; --bg2: #151b23; --ink: #f0f6fc; --muted: #9198a1; --line: #3d444d; --card: #151b23;
+    --violet: #ab7df8; --violet-bg: rgba(171,125,248,.16); --violet-line: rgba(171,125,248,.5);
+    --orange: #f0883e; --orange-bg: rgba(240,136,62,.14); --orange-line: rgba(240,136,62,.5);
+    --blue: #4493f8; --blue-bg: rgba(68,147,248,.14); --blue-line: rgba(68,147,248,.5);
+    --shadow: 0 1px 2px rgba(0,0,0,.4); /* no big blur: it bands once the PNG is reduced to 256 colours */
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: transparent; }
+  body { width: 960px; height: 330px; font-family: Inter, "Segoe UI", "Noto Sans TC", sans-serif; color: var(--ink); }
+  .frame { position: relative; width: 960px; height: 330px; border-radius: 22px; overflow: hidden; border: 1px solid var(--line);
+           background: var(--bg); display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding: 20px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; box-shadow: var(--shadow);
+          padding: 16px 18px; display: flex; flex-direction: column; }
+  .title { display: flex; align-items: baseline; gap: 10px; }
+  .title h2 { margin: 0; font-size: 19px; font-weight: 700; letter-spacing: -0.02em; }
+  .title span { font-family: "Noto Sans TC", sans-serif; font-size: 13px; color: var(--muted); font-weight: 500; }
+  .label { font-size: 10.5px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin-top: 14px; }
+  .io { font-family: "JetBrains Mono", Consolas, monospace; font-size: 22px; font-weight: 600; margin-top: 4px; white-space: nowrap; }
+  .io .arrow { color: var(--muted); font-weight: 400; margin: 0 8px; font-size: 18px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+  .cp { font-family: "JetBrains Mono", Consolas, monospace; display: inline-flex; flex-direction: column; align-items: center;
+        justify-content: center; min-width: 27px; height: 38px; padding: 0 4px; border-radius: 7px; border: 1px solid var(--line); background: var(--bg2); }
+  .cp b { font-size: 14px; font-weight: 600; line-height: 1; }
+  .cp small { font-size: 8.5px; color: var(--muted); margin-top: 3px; line-height: 1; }
+  .zw .cp.hit { border: 1.5px dashed var(--violet-line); background: var(--violet-bg); padding: 0 6px; }
+  .zw .cp.hit b { color: var(--violet); font-size: 10.5px; }
+  .zw .cp.hit small { color: var(--violet); }
+  .hg .cp.hit { border: 1.5px solid var(--orange-line); background: var(--orange-bg); }
+  .hg .cp.hit small { color: var(--orange); }
+  .sh .cp { min-width: 0; padding: 0 9px; }
+  .sh .cp b { font-size: 13px; }
+  .sh .cp.hit { border: 1.5px solid var(--blue-line); background: var(--blue-bg); }
+  .note { margin-top: auto; font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+  .note b { color: var(--ink); font-weight: 600; }
+</style>
+</head>
+<body>
+<script>if (location.hash === '#dark') document.documentElement.className = 'dark';</script>
+<div class="frame">
+  <section class="card zw">
+    <div class="title"><h2>Zero-width</h2><span>零寬注入</span></div>
+    <div class="label">Looks like</div>
+    <div class="io">ink<span class="arrow">→</span>i&#x200B;n&#x200B;k</div>
+    <div class="label">Underneath</div>
+    <div class="chips">
+      <span class="cp"><b>i</b><small>0069</small></span><span class="cp hit"><b>ZWSP</b><small>200B</small></span><span class="cp"><b>n</b><small>006E</small></span><span class="cp hit"><b>ZWSP</b><small>200B</small></span><span class="cp"><b>k</b><small>006B</small></span>
+    </div>
+    <div class="note">Invisible characters between the letters: <b>3 characters become 5</b>, so exact search and keyword filters miss it.</div>
+  </section>
+
+  <section class="card hg">
+    <div class="title"><h2>Homoglyph</h2><span>同形字替換</span></div>
+    <div class="label">Looks like</div>
+    <div class="io">coffee<span class="arrow">→</span>&#x441;&#x43E;ff&#x435;&#x435;</div>
+    <div class="label">Underneath</div>
+    <div class="chips">
+      <span class="cp hit"><b>&#x441;</b><small>0441</small></span><span class="cp hit"><b>&#x43E;</b><small>043E</small></span><span class="cp"><b>f</b><small>0066</small></span><span class="cp"><b>f</b><small>0066</small></span><span class="cp hit"><b>&#x435;</b><small>0435</small></span><span class="cp hit"><b>&#x435;</b><small>0435</small></span>
+    </div>
+    <div class="note">Latin letters swapped for <b>Cyrillic or Greek lookalikes</b> from Unicode's confusables list. Same length, different letters.</div>
+  </section>
+
+  <section class="card sh">
+    <div class="title"><h2>Shuffle</h2><span>片段打亂</span></div>
+    <div class="label">Reads like</div>
+    <div class="io" style="font-size:16px">one two three<span class="arrow">→</span>three one two</div>
+    <div class="label">Pieces</div>
+    <div class="chips">
+      <span class="cp hit"><b>three</b></span><span class="cp"><b>&#x2423;</b></span><span class="cp hit"><b>one</b></span><span class="cp"><b>&#x2423;</b></span><span class="cp hit"><b>two</b></span>
+    </div>
+    <div class="note">Words, sentences or fixed blocks change places; <b>spaces and line breaks stay put</b>. A person can still piece it together.</div>
+  </section>
+</div>
+</body>
+</html>

@@ -1,15 +1,13 @@
 "use client";
 
 import type { ShuffleStrategy } from "@/lib/shuffle";
+import { stripInput } from "./styles";
 
 const STRATEGIES: { value: ShuffleStrategy; label: string }[] = [
   { value: "word", label: "依單字" },
   { value: "sentence", label: "依句子" },
   { value: "char-block", label: "固定字元區塊" },
 ];
-
-const stripInput =
-  "px-3 py-2 rounded-lg border border-slate-600 bg-slate-700/80 text-slate-100 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:border-violet-400 transition-all duration-200";
 
 export default function ShuffleOptions({
   strategy,
