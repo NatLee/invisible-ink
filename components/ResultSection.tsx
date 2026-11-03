@@ -3,12 +3,18 @@
 import CopyButton from "./CopyButton";
 import {
   renderInvisibleForInspector,
-  BLOCK_ZWSP,
-  BLOCK_ZWNJ,
-  BLOCK_ZWJ,
+  splitInvisible,
   type InspectorStyle,
   type CharType,
+  type InvisibleChar,
 } from "@/lib/injector";
+
+/** How each invisible character is drawn in the block view when Mix is on. */
+const MIX_BLOCKS: Record<InvisibleChar, { symbol: string; code: string; className: string }> = {
+  "\u200B": { symbol: "\u25A0", code: "U+200B", className: "bg-red-400 text-red-900" },
+  "\u200C": { symbol: "\u25A1", code: "U+200C", className: "bg-blue-400 text-blue-900" },
+  "\u200D": { symbol: "\u25AA", code: "U+200D", className: "bg-emerald-500 text-emerald-900" },
+};
 
 export default function ResultSection({
   result,
@@ -29,54 +35,25 @@ export default function ResultSection({
   onReset: () => void;
   showInspector?: boolean;
 }) {
-  const displayText = showInspector
-    ? renderInvisibleForInspector(
-    result,
-    inspectorEnabled,
-    inspectorStyle,
-    charType === "mix"
-  )
-    : result;
-
-  const isBlockStyle = showInspector && inspectorEnabled && inspectorStyle === "block";
+  const inspecting = showInspector && inspectorEnabled;
+  const isBlockStyle = inspecting && inspectorStyle === "block";
   const distinguishMix = isBlockStyle && charType === "mix";
+  const displayText = inspecting ? renderInvisibleForInspector(result, true, "tag") : result;
 
-  const renderBlockContent = () => {
-    if (distinguishMix) {
-      return (
-        <>
-          {displayText.split("").map((c, i) => {
-            if (c === BLOCK_ZWSP)
-              return (
-                <span key={i} className="bg-red-400 text-red-900 rounded px-0.5" title="U+200B" aria-hidden>■</span>
-              );
-            if (c === BLOCK_ZWNJ)
-              return (
-                <span key={i} className="bg-blue-400 text-blue-900 rounded px-0.5" title="U+200C" aria-hidden>□</span>
-              );
-            if (c === BLOCK_ZWJ)
-              return (
-                <span key={i} className="bg-emerald-500 text-emerald-900 rounded px-0.5" title="U+200D" aria-hidden>▪</span>
-              );
-            return <span key={i}>{c}</span>;
-          })}
-        </>
+  const renderBlockContent = () =>
+    splitInvisible(result).map((part, i) => {
+      if (part.kind === "text") return <span key={i}>{part.text}</span>;
+      const block = MIX_BLOCKS[part.char];
+      return distinguishMix ? (
+        <span key={i} className={`${block.className} rounded px-0.5`} title={block.code} aria-hidden>
+          {block.symbol}
+        </span>
+      ) : (
+        <span key={i} className="bg-red-400 text-red-900 rounded px-0.5" title={block.code} aria-hidden>
+          {"\u25AF"}
+        </span>
       );
-    }
-    const blockParts = displayText.split("▯");
-    return (
-      <>
-        {blockParts.map((part, i) => (
-          <span key={i}>
-            {part}
-            {i < blockParts.length - 1 && (
-              <span className="bg-red-400 text-red-900 rounded px-0.5" aria-hidden>▯</span>
-            )}
-          </span>
-        ))}
-      </>
-    );
-  };
+    });
 
   return (
     <section aria-labelledby="result-label">
@@ -144,6 +121,18 @@ export default function ResultSection({
                 <option value="block">方塊</option>
               </select>
             </div>
+          )}
+          {distinguishMix && (
+            <ul className="flex items-center gap-3 text-xs text-slate-500 font-mono" aria-label="方塊顏色說明">
+              {Object.values(MIX_BLOCKS).map((b) => (
+                <li key={b.code} className="inline-flex items-center gap-1">
+                  <span className={`${b.className} rounded px-0.5`} aria-hidden>
+                    {b.symbol}
+                  </span>
+                  {b.code}
+                </li>
+              ))}
+            </ul>
           )}
         </div>
       )}

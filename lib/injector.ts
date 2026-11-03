@@ -110,3 +110,25 @@ export function renderInvisibleForInspector(
     .replace(new RegExp(ZWNJ, "g"), "<200C>")
     .replace(new RegExp(ZWJ, "g"), "<200D>");
 }
+
+/** A run of ordinary text, or one invisible character (for the block view). */
+export type InspectorPart =
+  | { kind: "text"; text: string }
+  | { kind: "invisible"; char: InvisibleChar };
+
+const isInvisibleChar = (s: string): s is InvisibleChar =>
+  (INVISIBLE_CHARS as readonly string[]).includes(s);
+
+/**
+ * Splits text into ordinary runs and the invisible characters between them,
+ * so the inspector can draw each invisible character as a coloured block
+ * without touching the visible text (an emoji or a literal ▯ stays as is).
+ */
+export function splitInvisible(text: string): InspectorPart[] {
+  return text
+    .split(/([\u200B\u200C\u200D])/)
+    .filter(Boolean)
+    .map((piece) =>
+      isInvisibleChar(piece) ? { kind: "invisible", char: piece } : { kind: "text", text: piece }
+    );
+}

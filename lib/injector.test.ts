@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   injectZeroWidth,
   renderInvisibleForInspector,
+  splitInvisible,
   type CharType,
   type InjectionMode,
 } from "./injector";
@@ -125,5 +126,34 @@ describe("injectZeroWidth Random mode", () => {
     const a = injectZeroWidth("hello world", "random", "mix", 50, seeded(42));
     const b = injectZeroWidth("hello world", "random", "mix", 50, seeded(42));
     expect(a).toBe(b);
+  });
+});
+
+describe("splitInvisible (inspector block view)", () => {
+  const join = (parts: ReturnType<typeof splitInvisible>) =>
+    parts.map((p) => (p.kind === "text" ? p.text : p.char)).join("");
+
+  it("separates ordinary text from each invisible character", () => {
+    expect(splitInvisible(`ab${ZWSP}c${ZWNJ}${ZWJ}`)).toEqual([
+      { kind: "text", text: "ab" },
+      { kind: "invisible", char: ZWSP },
+      { kind: "text", text: "c" },
+      { kind: "invisible", char: ZWNJ },
+      { kind: "invisible", char: ZWJ },
+    ]);
+    expect(splitInvisible("")).toEqual([]);
+  });
+
+  it("leaves block symbols that are really in the text alone", () => {
+    // The old view swapped invisible characters for these symbols and then
+    // looked for the symbols, so a real one was painted as an invisible character.
+    expect(splitInvisible("\u25AF\u25A0\u25A1\u25AA")).toEqual([{ kind: "text", text: "\u25AF\u25A0\u25A1\u25AA" }]);
+  });
+
+  it("keeps emoji whole and gives the original text back when joined", () => {
+    const text = injectZeroWidth(`hi ${WHOLE.emoji}${WHOLE.flag}!`, "interval", "mix");
+    const parts = splitInvisible(text);
+    expect(join(parts)).toBe(text);
+    expect(parts.some((p) => p.kind === "text" && p.text === WHOLE.flag)).toBe(true);
   });
 });
