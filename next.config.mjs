@@ -5,9 +5,9 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
-  // GitHub Pages: https://natlee.github.io/invisible-ink/
+  // GitHub Pages serves the site from https://natlee.github.io/invisible-ink/.
+  // basePath also prefixes the JS/CSS/font URLs, in dev and in the export.
   basePath: "/invisible-ink",
-  assetPrefix: process.env.NODE_ENV === "production" ? "/invisible-ink" : "",
 };
 
 export default nextConfig;
