@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { encodeForDisplay, splitGraphemes } from "./text";
+import { encodeForDisplay, seededRandom, splitGraphemes } from "./text";
 
 describe("splitGraphemes", () => {
   it("splits plain text into characters", () => {
@@ -25,5 +25,15 @@ describe("encodeForDisplay", () => {
     expect(() => encodeURIComponent("a\uD83D")).toThrow(URIError);
     expect(encodeForDisplay("a\uD83D")).toBe("a%EF%BF%BD");
     expect(encodeForDisplay("\uDE00b")).toBe("%EF%BF%BDb");
+  });
+});
+
+describe("seededRandom", () => {
+  it("gives the same sequence for the same seed, and numbers in [0, 1)", () => {
+    const a = seededRandom(42), b = seededRandom(42), c = seededRandom(43);
+    const seqA = Array.from({ length: 1000 }, a);
+    expect(Array.from({ length: 1000 }, b)).toEqual(seqA);
+    expect(Array.from({ length: 1000 }, c)).not.toEqual(seqA);
+    for (const x of seqA) expect(x >= 0 && x < 1).toBe(true);
   });
 });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useSyncExternalStore } from "react";
 import { Github } from "lucide-react";
 import InputSection from "@/components/InputSection";
 import TweakPanel from "@/components/TweakPanel";
@@ -18,7 +18,7 @@ import {
 } from "@/lib/injector";
 import { shuffleFragments, DEFAULT_BLOCK_SIZE, type ShuffleStrategy } from "@/lib/shuffle";
 import { applyHomoglyph, type HomoglyphStrength } from "@/lib/homoglyph";
-import { encodeForDisplay } from "@/lib/text";
+import { encodeForDisplay, seededRandom } from "@/lib/text";
 
 /** What the source box shows on first load (Reset clears it). */
 const SAMPLE_TEXT = "https://natlee.github.io/invisible-ink/";
@@ -44,6 +44,22 @@ const DEFAULTS: {
   homoglyphStrength: "medium",
 };
 
+/**
+ * One random seed per visit, shared by the tools that use randomness. The
+ * static prerender has no visit yet and uses 0; in the browser React switches
+ * to the real seed right after hydration. useSyncExternalStore is React's API
+ * for a value that differs between server and browser, so the first client
+ * render still matches the prerendered HTML.
+ */
+let visitSeed: number | undefined;
+const noSubscription = () => () => {};
+const readVisitSeed = () => (visitSeed ??= Math.floor(Math.random() * 2 ** 32));
+const readServerSeed = () => 0;
+
+function useVisitSeed(): number {
+  return useSyncExternalStore(noSubscription, readVisitSeed, readServerSeed);
+}
+
 export default function Home() {
   const [tool, setTool] = useState<ToolId>("zero-width");
   const [source, setSource] = useState(SAMPLE_TEXT);
@@ -57,22 +73,21 @@ export default function Home() {
   const [charBlockSize, setCharBlockSize] = useState(DEFAULTS.charBlockSize);
   const [homoglyphStrength, setHomoglyphStrength] = useState(DEFAULTS.homoglyphStrength);
 
+  // Every result is a pure function of what is on screen plus the visit seed,
+  // so rendering the same state always gives the same text.
+  const seed = useVisitSeed();
   const zeroWidthResult = useMemo(
-    () => injectZeroWidth(source, mode, charType, density),
-    [source, mode, charType, density]
+    () => injectZeroWidth(source, mode, charType, density, seededRandom(seed)),
+    [source, mode, charType, density, seed]
   );
-
-  // Shuffle and homoglyph are random, so they run after mount rather than in
-  // the static prerender (the HTML and the first client render must match).
-  // Separate effects, so changing one tool's options doesn't re-roll the other.
-  const [shuffleResult, setShuffleResult] = useState("");
-  const [homoglyphResult, setHomoglyphResult] = useState("");
-  useEffect(() => {
-    setShuffleResult(source.trim() ? shuffleFragments(source, shuffleStrategy, charBlockSize) : "");
-  }, [source, shuffleStrategy, charBlockSize]);
-  useEffect(() => {
-    setHomoglyphResult(source.trim() ? applyHomoglyph(source, homoglyphStrength) : "");
-  }, [source, homoglyphStrength]);
+  const shuffleResult = useMemo(
+    () => (source.trim() ? shuffleFragments(source, shuffleStrategy, charBlockSize, seededRandom(seed)) : ""),
+    [source, shuffleStrategy, charBlockSize, seed]
+  );
+  const homoglyphResult = useMemo(
+    () => (source.trim() ? applyHomoglyph(source, homoglyphStrength, seededRandom(seed)) : ""),
+    [source, homoglyphStrength, seed]
+  );
 
   const results: Record<ToolId, string> = {
     "zero-width": zeroWidthResult,

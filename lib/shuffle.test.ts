@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { shuffleFragments, type ShuffleStrategy } from "./shuffle";
-import { seeded } from "./test-utils";
+import { seededRandom } from "./text";
 
 const STRATEGIES: ShuffleStrategy[] = ["word", "sentence", "char-block"];
 const sortedChars = (s: string) => Array.from(s).sort().join("");
@@ -110,6 +110,6 @@ describe("shuffleFragments order", () => {
 
   it("is repeatable with the same random source", () => {
     const text = "one two three four five";
-    expect(shuffleFragments(text, "word", 3, seeded(7))).toBe(shuffleFragments(text, "word", 3, seeded(7)));
+    expect(shuffleFragments(text, "word", 3, seededRandom(7))).toBe(shuffleFragments(text, "word", 3, seededRandom(7)));
   });
 });
