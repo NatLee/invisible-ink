@@ -49,7 +49,12 @@ describe("shuffleFragments by word", () => {
 
   it("never glues two words together", () => {
     for (let i = 0; i < 200; i++)
-      expect(shuffleFragments("alpha beta gamma delta", "word").split(" ")).toHaveLength(4);
+      expect(shuffleFragments("alpha beta gamma delta", "word").split(" ").sort()).toEqual([
+        "alpha",
+        "beta",
+        "delta",
+        "gamma",
+      ]);
   });
 });
 
@@ -81,8 +86,9 @@ describe("shuffleFragments by character block", () => {
   });
 
   it("counts an emoji as one character when sizing blocks", () => {
-    const out = shuffleFragments("\u{1F600}\u{1F600}x", "char-block", 2, seeded(3));
-    expect(out).toBe("x\u{1F600}\u{1F600}");
+    // Blocks of 2 are "😀a" and "b"; two pieces always swap.
+    for (let i = 0; i < 20; i++)
+      expect(shuffleFragments("\u{1F600}ab", "char-block", 2)).toBe("b\u{1F600}a");
   });
 });
 
