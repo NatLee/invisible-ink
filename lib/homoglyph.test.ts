@@ -61,6 +61,14 @@ describe("applyHomoglyph lookalikes", () => {
     expect(Object.keys(substitutes("medium")).join("")).toBe("aceoprsxyACEKOPSXY");
   });
 
+  it("replaces everything a weaker strength replaces, and more", () => {
+    const [minimal, medium, full] = STRENGTHS.map((s) => Object.keys(substitutes(s)));
+    expect(medium).toEqual(expect.arrayContaining(minimal));
+    expect(full).toEqual(expect.arrayContaining(medium));
+    expect(full.length).toBeGreaterThan(medium.length);
+    expect(medium.length).toBeGreaterThan(minimal.length);
+  });
+
   it("never swaps in a letter that reads as something else", () => {
     // These used to be produced: w -> "вв" (reads BB), n -> н (small-caps H) or ν (v),
     // v -> в (small-caps B), y -> υ (u), C -> lowercase ϲ, e -> ε, k -> к/κ, x -> χ.
