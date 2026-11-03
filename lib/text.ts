@@ -17,8 +17,14 @@ const segmenter =
 /**
  * Splits text into user-perceived characters (grapheme clusters): an emoji
  * with a skin tone, a flag, a ZWJ family or `e` + combining accent each stay
- * one piece. Falls back to code points where `Intl.Segmenter` is missing
- * (Firefox before 125), which still never cuts an emoji in half.
+ * one piece.
+ *
+ * Compatibility fallback (the only one in the app): without `Intl.Segmenter`
+ * this splits by code point, which still never cuts an emoji in half but does
+ * separate combining accents. It is here because Next.js 14 targets browsers
+ * back to Chrome 64, Firefox 67 and Safari 12, while `Intl.Segmenter` needs
+ * Chrome/Edge 87, Firefox 125 or Safari 14.1. Once the supported browsers are
+ * raised past those, drop `segmenter`'s null case and this branch.
  */
 export function splitGraphemes(text: string): string[] {
   if (!segmenter) return Array.from(text);
