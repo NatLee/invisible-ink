@@ -6,6 +6,9 @@
  * on whole characters instead, or emoji, flags and accented letters fall apart.
  */
 
+/** Returns a number in [0, 1), like `Math.random`. Tests pass a seeded one. */
+export type RandomSource = () => number;
+
 const segmenter =
   typeof Intl !== "undefined" && typeof Intl.Segmenter === "function"
     ? new Intl.Segmenter(undefined, { granularity: "grapheme" })

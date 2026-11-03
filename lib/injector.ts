@@ -1,4 +1,4 @@
-import { splitGraphemes } from "./text";
+import { splitGraphemes, type RandomSource } from "./text";
 
 export type InjectionMode =
   | "interval"
@@ -9,9 +9,6 @@ export type InjectionMode =
 export type InvisibleChar = "\u200B" | "\u200C" | "\u200D";
 
 export type CharType = InvisibleChar | "mix";
-
-/** Returns a number in [0, 1), like `Math.random`. Tests pass a seeded one. */
-export type RandomSource = () => number;
 
 export const INVISIBLE_CHARS: readonly InvisibleChar[] = ["\u200B", "\u200C", "\u200D"];
 

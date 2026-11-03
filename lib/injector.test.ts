@@ -5,6 +5,7 @@ import {
   type CharType,
   type InjectionMode,
 } from "./injector";
+import { seeded } from "./test-utils";
 
 const ZWSP = "\u200B";
 const ZWNJ = "\u200C";
@@ -78,16 +79,6 @@ describe("renderInvisibleForInspector", () => {
     );
   });
 });
-
-/** Small seeded random source (mulberry32) so random modes are repeatable in tests. */
-function seeded(seed: number) {
-  return () => {
-    seed = (seed + 0x6d2b79f5) | 0;
-    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
 
 // Each of these is one character on screen but more than one UTF-16 unit.
 const WHOLE = {
