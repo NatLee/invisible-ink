@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   injectZeroWidth,
-  renderInvisibleForInspector,
+  renderInvisibleAsTags,
   splitInvisible,
   type CharType,
   type InjectionMode,
@@ -69,15 +69,13 @@ describe("injectZeroWidth", () => {
   });
 });
 
-describe("renderInvisibleForInspector", () => {
-  it("returns the text as is when the inspector is off", () => {
-    expect(renderInvisibleForInspector(`a${ZWSP}b`, false)).toBe(`a${ZWSP}b`);
+describe("renderInvisibleAsTags", () => {
+  it("shows each invisible character as its code", () => {
+    expect(renderInvisibleAsTags(`a${ZWSP}b${ZWNJ}c${ZWJ}d`)).toBe("a<200B>b<200C>c<200D>d");
   });
 
-  it("shows each invisible character as its code", () => {
-    expect(renderInvisibleForInspector(`a${ZWSP}b${ZWNJ}c${ZWJ}d`, true, "tag")).toBe(
-      "a<200B>b<200C>c<200D>d"
-    );
+  it("leaves text without invisible characters alone", () => {
+    expect(renderInvisibleAsTags("plain <200B> text")).toBe("plain <200B> text");
   });
 });
 

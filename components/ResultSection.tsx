@@ -2,7 +2,7 @@
 
 import CopyButton from "./CopyButton";
 import {
-  renderInvisibleForInspector,
+  renderInvisibleAsTags,
   splitInvisible,
   type InspectorStyle,
   type CharType,
@@ -38,7 +38,7 @@ export default function ResultSection({
   const inspecting = showInspector && inspectorEnabled;
   const isBlockStyle = inspecting && inspectorStyle === "block";
   const distinguishMix = isBlockStyle && charType === "mix";
-  const displayText = inspecting ? renderInvisibleForInspector(result, true, "tag") : result;
+  const displayText = inspecting ? renderInvisibleAsTags(result) : result;
 
   const renderBlockContent = () =>
     splitInvisible(result).map((part, i) => {
