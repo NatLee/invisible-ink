@@ -35,10 +35,7 @@ export default function InputSection({
         placeholder="請輸入原始文字或網址…"
         value={value}
         maxLength={MAX_LENGTH}
-        onChange={(e) => {
-          const v = e.target.value;
-          if (v.length <= MAX_LENGTH) onChange(v);
-        }}
+        onChange={(e) => onChange(e.target.value)}
         disabled={disabled}
         className="w-full min-h-[160px] lg:min-h-[220px] resize-y rounded-lg border border-slate-200 bg-white px-3 py-2 font-mono text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-violet-300 disabled:opacity-60 transition-all duration-200"
         rows={5}
